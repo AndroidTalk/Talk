@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 
 import computer.schroeder.talk.Main;
+import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.screens.Screen;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenConversationInfo;

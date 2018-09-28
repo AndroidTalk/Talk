@@ -16,6 +16,7 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;

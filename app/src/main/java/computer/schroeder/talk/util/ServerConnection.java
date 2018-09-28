@@ -173,7 +173,7 @@ public class ServerConnection
 
     private JSONObject request(String type, String request) throws Exception
     {
-        HttpURLConnection connection = (HttpURLConnection) new URL("https://chat.schroeder.computer/api/" + type + ".php?" + request).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type + "&" + request).openConnection();
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         return new JSONObject(br.readLine());
     }

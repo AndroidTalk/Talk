@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "619342582273",
+    "firebase_url": "https://talk-e39a0.firebaseio.com",
+    "project_id": "talk-e39a0",
+    "storage_bucket": "talk-e39a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619342582273:android:8c28591ef4196b71",
+        "android_client_info": {
+          "package_name": "computer.schroeder.talk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "619342582273-37tq37b8gso00mh70aeuvp84k7q0717j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "computer.schroeder.talk",
+            "certificate_hash": "3703819e63d1ad53a27bc8beb7a4cb26a61e33a2"
+          }
+        },
+        {
+          "client_id": "619342582273-p6bbimc4m79rerjouql9qoci54e3akef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJCUvCPwMhGinLKi0L1aKG3lekot5l0bM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "619342582273-p6bbimc4m79rerjouql9qoci54e3akef.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

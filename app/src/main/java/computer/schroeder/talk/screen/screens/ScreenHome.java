@@ -4,7 +4,6 @@ package computer.schroeder.talk.screen.screens;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,15 +23,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
-import computer.schroeder.chat.R;
-import computer.schroeder.chat.screen.ScreenManager;
-import computer.schroeder.chat.storage.ComplexStorage;
-import computer.schroeder.chat.storage.SimpleStorage;
-import computer.schroeder.chat.storage.entities.StoredConversation;
-import computer.schroeder.chat.storage.entities.StoredMessage;
-import computer.schroeder.chat.storage.entities.StoredUser;
-import computer.schroeder.chat.util.TokenService;
-import computer.schroeder.chat.util.Util;
+import computer.schroeder.talk.R;
+import computer.schroeder.talk.screen.ScreenManager;
+import computer.schroeder.talk.storage.ComplexStorage;
+import computer.schroeder.talk.storage.SimpleStorage;
+import computer.schroeder.talk.storage.entities.StoredConversation;
+import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredUser;
+import computer.schroeder.talk.util.TokenService;
+import computer.schroeder.talk.util.Util;
 
 public class ScreenHome extends Screen
 {
@@ -54,7 +55,7 @@ public class ScreenHome extends Screen
         localUser = getScreenManager().getMain().getSimpleStorage().getUser();
         conversations = getContentView().findViewById(R.id.conversations);
 
-        FloatingActionButton newChat = getContentView().findViewById(R.id.newChat);
+        FloatingActionButton newChat = getContentView().findViewById(R.id.newGroup);
         newChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)

@@ -5,6 +5,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 
 public class ScreenError extends Screen

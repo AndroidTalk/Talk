@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredMessage;
