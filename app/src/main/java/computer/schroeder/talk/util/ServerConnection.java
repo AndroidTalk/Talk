@@ -144,6 +144,8 @@ public class ServerConnection
             JSONArray messages = object.getJSONArray("messages");
             for(int i = 0; i < messages.length(); i++)
             {
+                System.out.println("NEW MESSAGE");
+
                 JSONObject msg = messages.getJSONObject(i);
                 int sender = msg.getInt("sender");
                 int conversation = msg.getInt("conversation");
@@ -174,6 +176,7 @@ public class ServerConnection
     private JSONObject request(String type, String request) throws Exception
     {
         HttpURLConnection connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type + "&" + request).openConnection();
+        System.out.println("https://talk.schroeder.computer/api.php?api=" + type + "&" + request);
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         return new JSONObject(br.readLine());
     }
