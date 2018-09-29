@@ -25,7 +25,7 @@
         <activity
             android:name=".Main"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:windowSoftInputMode="adjustUnspecified"
             android:theme="@style/Talk">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

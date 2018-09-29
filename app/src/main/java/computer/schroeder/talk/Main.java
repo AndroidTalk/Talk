@@ -23,14 +23,12 @@ public class Main extends AppCompatActivity
     private ComplexStorageImpl complexStorage;
     private EncryptionService encryptionService;
     private ServerConnection serverConnection;
-    private Bundle bundle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        bundle = savedInstanceState;
-        init();
+        startWithState(savedInstanceState);
     }
 
     private void init()
@@ -54,7 +52,8 @@ public class Main extends AppCompatActivity
     protected void onStart()
     {
         super.onStart();
-        startWithState(getIntent().getExtras());
+        //System.out.println("onStart: " + getIntent().getExtras());
+        //startWithState(getIntent().getExtras());
     }
 
     @Override
@@ -68,6 +67,7 @@ public class Main extends AppCompatActivity
     protected void onNewIntent(Intent intent)
     {
         super.onNewIntent(intent);
+        System.out.println("onNewIntent: " + intent.getExtras());
         startWithState(intent.getExtras());
     }
 
@@ -127,31 +127,30 @@ public class Main extends AppCompatActivity
 
     public void startWithState(Bundle bundle)
     {
-        if(bundle == null) bundle = this.bundle;
-        if(bundle != null)
+        init();
+
+        if(bundle == null) bundle = new Bundle();
+
+        String screen = bundle.getString("screen", "HOME");
+        if(screen.equals("CONVERSATION"))
         {
-            String screen = bundle.getString("screen", "HOME");
-            switch (screen) {
-                case "CONVERSATION": {
-                    long conversation = bundle.getLong("conversation", 0);
-                    if (conversation > 0) getScreenManager().showConversationScreen(conversation);
-                    else getScreenManager().showHomeScreen(true);
-                    break;
-                }
-                case "CONVERSATION_INFO": {
-                    long conversation = bundle.getLong("conversation", 0);
-                    if (conversation > 0)
-                        getScreenManager().showConversationInfoScreen(conversation);
-                    else getScreenManager().showHomeScreen(true);
-                    break;
-                }
-                default:
-                    screenManager.showHomeScreen(true);
-                    break;
+            long conversation = bundle.getLong("conversation", 0);
+            if (conversation > 0)
+            {
+                getScreenManager().showConversationScreen(conversation);
+                return;
             }
         }
-        else getScreenManager().showHomeScreen(true);
-        this.bundle = null;
+        else if(screen.equals("CONVERSATION_INFO"))
+        {
+            long conversation = bundle.getLong("conversation", 0);
+            if (conversation > 0)
+            {
+                getScreenManager().showConversationScreen(conversation);
+                return;
+            }
+        }
+        getScreenManager().showHomeScreen(true);
     }
 
     public static boolean isClosed() {

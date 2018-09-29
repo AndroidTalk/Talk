@@ -1,5 +1,6 @@
 package computer.schroeder.talk.screen;
 
+import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -76,6 +77,7 @@ public class ScreenManager
 
     public void showHomeScreen(boolean sync)
     {
+        System.out.println("SHOW HOME");
         showScreen(new ScreenHome(ScreenManager.this, sync));
     }
 
@@ -110,6 +112,7 @@ public class ScreenManager
         main.invalidateOptionsMenu();
         main.setContentView(R.layout.screen_loading);
         setActionBar(null, false, "Loading...");
+        getMain().getWindow().getDecorView().setBackgroundColor(Color.WHITE);
     }
 
     public void setActionBar(Integer id, boolean home)

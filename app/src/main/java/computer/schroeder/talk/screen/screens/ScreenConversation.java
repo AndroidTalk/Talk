@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -130,6 +131,7 @@ public class ScreenConversation extends Screen
             @Override
             public void run()
             {
+                getScreenManager().getMain().getWindow().getDecorView().setBackground(getScreenManager().getMain().getResources().getDrawable(R.drawable.backgroundxml));
                 getScreenManager().getMain().setContentView(getContentView());
                 updateActionBar();
 
@@ -199,7 +201,7 @@ public class ScreenConversation extends Screen
                 else if(!selected.isEmpty())
                 {
                     selected.add(storedMessage);
-                    messageView.setBackgroundColor(Color.parseColor("#AFFEA02C"));
+                    messageView.setBackgroundColor(Color.parseColor("#cce1f3fb"));
                 }
                 updateActionBar();
             }
@@ -217,7 +219,7 @@ public class ScreenConversation extends Screen
                 else
                 {
                     selected.add(storedMessage);
-                    messageView.setBackgroundColor(Color.parseColor("#AFFEA02C"));
+                    messageView.setBackgroundColor(Color.parseColor("#cce1f3fb"));
                 }
                 updateActionBar();
                 return true;
@@ -234,13 +236,29 @@ public class ScreenConversation extends Screen
         getScreenManager().getMain().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(update) addInfo(new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(new Date(storedMessage.getTime())), false);
+                if(update) addDateInfo(new Date(storedMessage.getTime()));
                 if(top) messages.addView(messageView, 0);
                 else messages.addView(messageView);
                 scrollToView(messageView);
             }
         });
         return messageView;
+    }
+
+    private void addDateInfo(Date date)
+    {
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(date);
+        cal2.setTime(new Date(System.currentTimeMillis()));
+        boolean sameDay = cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
+        cal2.setTime(new Date(System.currentTimeMillis() - 86400000));
+        boolean yesterday = cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
+        if(sameDay) addInfo("TODAY", false);
+        else if(yesterday) addInfo("YESTERDAY", false);
+        else addInfo(new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(date), false);
     }
 
     private void addInfo(String message, boolean top)
