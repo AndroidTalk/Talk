@@ -6,6 +6,6 @@
         <color android:color="#e5ddd5" />
     </item>
     <item>
-        <bitmap android:src="@drawable/background" />
+        <bitmap android:src="@drawable/background" android:tint="#dbd4cc" />
     </item>
 </layer-list>

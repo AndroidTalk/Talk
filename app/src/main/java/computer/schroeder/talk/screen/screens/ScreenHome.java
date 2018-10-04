@@ -294,11 +294,13 @@ public class ScreenHome extends Screen
         if(time == 0) return "";
 
         long julianDayNumber1 = System.currentTimeMillis() / 86400000;
-        long julianDayNumber2 = time / 86400000;
+        long julianDayNumber2 = julianDayNumber1 - 1;
+        long julianDayNumber = time / 86400000;
 
         // If they now are equal then it is the same day.
-        if(julianDayNumber1 == julianDayNumber2) return new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(time));
-        return new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(new Date(time));
+        if(julianDayNumber1 == julianDayNumber) return new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(time));
+        if(julianDayNumber == julianDayNumber2) return "YESTERDAY";
+        return new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(new Date(time));
     }
 
     public HashMap<Long, View> getConversationMap() {

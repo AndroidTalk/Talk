@@ -2,6 +2,7 @@ package computer.schroeder.talk.screen.screens;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.view.Menu;
@@ -172,7 +173,15 @@ public class ScreenConversation extends Screen
     {
         final View messageView;
 
-        if(storedMessage.getUser() == localUser) messageView = getScreenManager().getInflater().inflate(R.layout.display_message_sent, messages, false);
+        if(storedMessage.getUser() == localUser)
+        {
+            messageView = getScreenManager().getInflater().inflate(R.layout.display_message_sent, messages, false);
+            ImageView status = messageView.findViewById(R.id.status);
+            if(storedMessage.isSent())
+            {
+                status.setImageDrawable(getScreenManager().getMain().getResources().getDrawable(R.drawable.ic_done_all));
+            }
+        }
         else
         {
             messageView = getScreenManager().getInflater().inflate(R.layout.display_message_received, messages, false);
@@ -185,9 +194,6 @@ public class ScreenConversation extends Screen
         textViewMessage.setText(storedMessage.getMessage());
         TextView textViewTime = messageView.findViewById(R.id.time);
         textViewTime.setText(new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(storedMessage.getTime())));
-
-        if(!storedMessage.isSent())
-            ((CardView) messageView.findViewById(R.id.card)).setCardBackgroundColor(Color.parseColor("#FFFF4444"));
 
         messageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -258,7 +264,7 @@ public class ScreenConversation extends Screen
                 cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
         if(sameDay) addInfo("TODAY", false);
         else if(yesterday) addInfo("YESTERDAY", false);
-        else addInfo(new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(date), false);
+        else addInfo(new SimpleDateFormat("dd. MMMM yyyy", Locale.ENGLISH).format(date), false);
     }
 
     private void addInfo(String message, boolean top)
@@ -274,7 +280,7 @@ public class ScreenConversation extends Screen
 
     private void updateActionBar()
     {
-        if(selected.isEmpty()) getScreenManager().setActionBar(null, true, storedConversation.getTitle());
+        if(selected.isEmpty()) getScreenManager().setActionBar(R.layout.actionbar_conversation, true, storedConversation.getTitle());
         else
         {
             getScreenManager().setActionBar(R.layout.actionbar_conversation_selected, true, storedConversation.getTitle());
