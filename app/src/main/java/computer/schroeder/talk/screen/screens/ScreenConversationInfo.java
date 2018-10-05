@@ -20,7 +20,7 @@ import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.storage.entities.StoredUser;
 
 public class ScreenConversationInfo extends Screen
@@ -175,7 +175,7 @@ public class ScreenConversationInfo extends Screen
                                             getScreenManager().getMain().getServerConnection().conversationLeave(storedConversation.getId());
                                             ComplexStorage complexStorage = getScreenManager().getMain().getComplexStorage().getComplexStorage();
                                             complexStorage.conversationDelete(storedConversation);
-                                            for(StoredMessage storedMessage : complexStorage.messageSelectConversation(storedConversation.getId())) complexStorage.messageDelete(storedMessage);
+                                            for(StoredSendable storedMessage : complexStorage.messageSelectConversation(storedConversation.getId())) complexStorage.messageDelete(storedMessage);
                                             getScreenManager().showHomeScreen(false);
                                         }
                                     }).start();

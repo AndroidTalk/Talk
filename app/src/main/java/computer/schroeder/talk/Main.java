@@ -48,13 +48,13 @@ public class Main extends AppCompatActivity
         serverConnection = new ServerConnection(this);
     }
 
-    @Override
+    /*@Override
     protected void onStart()
     {
         super.onStart();
         //System.out.println("onStart: " + getIntent().getExtras());
         //startWithState(getIntent().getExtras());
-    }
+    }*/
 
     @Override
     protected void onResume()
@@ -67,7 +67,6 @@ public class Main extends AppCompatActivity
     protected void onNewIntent(Intent intent)
     {
         super.onNewIntent(intent);
-        System.out.println("onNewIntent: " + intent.getExtras());
         startWithState(intent.getExtras());
     }
 

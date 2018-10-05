@@ -14,7 +14,9 @@ import java.util.ArrayList;
 
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.SimpleStorage;
-import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredConversation;
+import computer.schroeder.talk.storage.entities.StoredSendable;
+import computer.schroeder.talk.util.sendable.Sendable;
 
 public class ServerConnection
 {
@@ -122,12 +124,12 @@ public class ServerConnection
         }
     }
 
-    public void messageSend(EncryptionService encryptionService, Message message, long user, long conversation)
+    public void messageSend(EncryptionService encryptionService, String type, Sendable message, long user, long conversation)
     {
         try
         {
-            String msg = encryptionService.encryptMessage(this, message, user);
-            request("messageSend", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
+            String msg = encryptionService.encryptMessage(this, message.toString(), user);
+            request("messageSend", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&type=" + type + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
         }
         catch (Exception e)
         {
@@ -135,9 +137,9 @@ public class ServerConnection
         }
     }
 
-    public ArrayList<StoredMessage> messageSync(EncryptionService encryptionService, ComplexStorage complexStorage)
+    public ArrayList<StoredSendable> messageSync(EncryptionService encryptionService, ComplexStorage complexStorage)
     {
-        ArrayList<StoredMessage> storedMessages = new ArrayList<>();
+        ArrayList<StoredSendable> storedMessages = new ArrayList<>();
         try
         {
             JSONObject object = request("messageSync", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8"));
@@ -149,21 +151,36 @@ public class ServerConnection
                 JSONObject msg = messages.getJSONObject(i);
                 int sender = msg.getInt("sender");
                 int conversation = msg.getInt("conversation");
+                String type = msg.getString("type");
                 String encrypted = msg.getString("message");
 
-                Message message = encryptionService.decryptMesage(encrypted);
+                String message = encryptionService.decryptMesage(encrypted);
 
-                StoredMessage storedMessage = new StoredMessage();
+                StoredSendable storedMessage = new StoredSendable();
                 storedMessage.setUser(sender);
                 storedMessage.setSent(true);
                 storedMessage.setRead(false);
                 storedMessage.setConversation(conversation);
-                storedMessage.setMessage(message.getMessage());
-                storedMessage.setTime(message.getTime());
+                storedMessage.setSendable(message);
+                storedMessage.setType(type);
+                storedMessage.setTime(System.currentTimeMillis());
 
                 long newId = complexStorage.messageInsert(storedMessage);
                 storedMessage.setId(newId);
                 storedMessages.add(storedMessage);
+
+                StoredConversation c = complexStorage.conversationSelect(conversation);
+                if(c == null)
+                {
+                    c = new StoredConversation();
+                    c.setId(conversation);
+                    c.setBlocked(false);
+                    c.setSilent(0);
+                    c.setTitle("Conversation #" + conversation);
+                    complexStorage.conversationInsert(c);
+                }
+
+                System.out.println("NEU: " + type + " " + message);
             }
         }
         catch (Exception e)

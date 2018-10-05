@@ -11,14 +11,14 @@ import computer.schroeder.talk.screen.screens.Screen;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenHome;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredSendable;
 
 public class Util
 {
     public static void sync(final Context context) throws Exception
     {
         final ComplexStorageImpl complexStorage = new ComplexStorageImpl(context);
-        ArrayList<StoredMessage> storedMessages = new ServerConnection(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
+        ArrayList<StoredSendable> storedMessages = new ServerConnection(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
 
         if(storedMessages.isEmpty()) return;
 
@@ -47,7 +47,7 @@ public class Util
                 if(screen instanceof ScreenConversation)
                 {
                     ScreenConversation screenConversation = (ScreenConversation) screen;
-                    for(StoredMessage storedMessage : storedMessages)
+                    for(StoredSendable storedMessage : storedMessages)
                     {
                         if(screenConversation.getStoredConversation().getId() == storedMessage.getConversation())
                         {
@@ -61,7 +61,7 @@ public class Util
                 else if(screen instanceof ScreenHome)
                 {
                     ScreenHome screenHome = (ScreenHome) screen;
-                    for(StoredMessage storedMessage : storedMessages)
+                    for(StoredSendable storedMessage : storedMessages)
                     {
                         StoredConversation conversation = complexStorage.getConversation(storedMessage.getConversation());
                         if(screenHome.getConversationMap().containsKey(conversation.getId()))

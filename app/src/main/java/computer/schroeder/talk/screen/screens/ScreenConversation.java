@@ -2,7 +2,6 @@ package computer.schroeder.talk.screen.screens;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.view.Menu;
@@ -26,10 +25,11 @@ import java.util.Locale;
 import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.storage.entities.StoredUser;
-import computer.schroeder.talk.util.Message;
 import computer.schroeder.talk.util.NotificationService;
+import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenConversation extends Screen
 {
@@ -41,7 +41,7 @@ public class ScreenConversation extends Screen
     private LinearLayout messages;
     private ScrollView scrollView;
 
-    private ArrayList<StoredMessage> selected = new ArrayList<>();
+    private ArrayList<StoredSendable> selected = new ArrayList<>();
 
     public ScreenConversation(ScreenManager screenManager, StoredConversation storedConversation)
     {
@@ -65,7 +65,7 @@ public class ScreenConversation extends Screen
         scrollView = getContentView().findViewById(R.id.scroll);
 
         addInfo("Messages are End-To-End encrypted", true);
-        for(StoredMessage storedMessage : getScreenManager().getMain().getComplexStorage().getComplexStorage()
+        for(StoredSendable storedMessage : getScreenManager().getMain().getComplexStorage().getComplexStorage()
                 .messageSelectConversation(storedConversation.getId()))
         {
             storedMessage.setRead(true);
@@ -89,26 +89,28 @@ public class ScreenConversation extends Screen
                     @Override
                     public void run() {
 
-                        final StoredMessage storedMessage = new StoredMessage();
+                        SendableTextMessage sendableTextMessage = new SendableTextMessage(message);
+
+                        final StoredSendable storedMessage = new StoredSendable();
                         storedMessage.setTime(System.currentTimeMillis());
-                        storedMessage.setMessage(message);
                         storedMessage.setConversation(storedConversation.getId());
                         storedMessage.setUser(localUser);
                         storedMessage.setRead(true);
                         storedMessage.setSent(true);
+                        storedMessage.setType("TextMessage");
+                        storedMessage.setSendable(sendableTextMessage.toString());
                         getScreenManager().getMain().getComplexStorage().getComplexStorage().messageInsert(storedMessage);
                         final View messageView = addMessage(storedMessage, false);
                         try
                         {
                             JSONObject object = getScreenManager().getMain().getServerConnection().conversationInfo(storedConversation.getId());
                             JSONArray member = object.getJSONArray("member");
-                            Message msg = new Message(storedMessage.getMessage(), storedMessage.getTime());
                             for(int i = 0; i < member.length(); i++)
                             {
                                 JSONObject o = (JSONObject) member.get(i);
                                 int id = o.getInt("id");
                                 if(id == localUser) continue;
-                                getScreenManager().getMain().getServerConnection().messageSend(getScreenManager().getMain().getEncryptionService(), msg, id, storedConversation.getId());
+                                getScreenManager().getMain().getServerConnection().messageSend(getScreenManager().getMain().getEncryptionService(), storedMessage.getType(), sendableTextMessage, id, storedConversation.getId());
                             }
                         }
                         catch(Exception e)
@@ -169,7 +171,7 @@ public class ScreenConversation extends Screen
         getScreenManager().showHomeScreen(false);
     }
 
-    public View addMessage(final StoredMessage storedMessage, final boolean top)
+    public View addMessage(final StoredSendable storedMessage, final boolean top)
     {
         final View messageView;
 
@@ -191,7 +193,12 @@ public class ScreenConversation extends Screen
             textViewUsername.setText(user.getUsername());
         }
         TextView textViewMessage = messageView.findViewById(R.id.message);
-        textViewMessage.setText(storedMessage.getMessage());
+
+        Sendable sendable = storedMessage.getSendableObject();
+        String text = "No text received.";
+        if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
+
+        textViewMessage.setText(text);
         TextView textViewTime = messageView.findViewById(R.id.time);
         textViewTime.setText(new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(storedMessage.getTime())));
 
@@ -299,7 +306,7 @@ public class ScreenConversation extends Screen
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            for(StoredMessage storedMessage : selected)
+                                            for(StoredSendable storedMessage : selected)
                                             {
                                                 getScreenManager().getMain().getComplexStorage().getComplexStorage().messageDelete(storedMessage);
                                             }

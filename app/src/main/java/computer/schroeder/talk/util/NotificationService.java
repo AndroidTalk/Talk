@@ -21,7 +21,9 @@ import computer.schroeder.talk.R;
 import computer.schroeder.talk.Main;
 import computer.schroeder.talk.storage.SimpleStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredSendable;
+import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class NotificationService
 {
@@ -50,7 +52,7 @@ public class NotificationService
             notificationManager.createNotificationChannel(channel);
         }
 
-        List<StoredMessage> unread = complexStorage.getComplexStorage().messageSelectUnread();
+        List<StoredSendable> unread = complexStorage.getComplexStorage().messageSelectUnread();
 
         if(unread.size() == 0)
         {
@@ -58,11 +60,11 @@ public class NotificationService
             return;
         }
 
-        HashMap<Long, ArrayList<StoredMessage>> messages = new HashMap<>();
+        HashMap<Long, ArrayList<StoredSendable>> messages = new HashMap<>();
 
-        for(StoredMessage storedMessage : unread)
+        for(StoredSendable storedMessage : unread)
         {
-            if(messages.get(storedMessage.getConversation()) == null) messages.put(storedMessage.getConversation(), new ArrayList<StoredMessage>());
+            if(messages.get(storedMessage.getConversation()) == null) messages.put(storedMessage.getConversation(), new ArrayList<StoredSendable>());
             messages.get(storedMessage.getConversation()).add(storedMessage);
         }
 
@@ -80,11 +82,17 @@ public class NotificationService
         for(Long conversation : messages.keySet())
         {
             StoredConversation storedConversation = complexStorage.getConversation(conversation);
-            ArrayList<StoredMessage> storedMessages = messages.get(conversation);
+            ArrayList<StoredSendable> storedMessages = messages.get(conversation);
 
             NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
 
-            for(StoredMessage storedMessage : storedMessages) style.addLine(complexStorage.getUser(storedMessage.getUser(), localUser).getUsername() + ": " + storedMessage.getMessage());
+            for(StoredSendable storedMessage : storedMessages)
+            {
+                Sendable sendable = storedMessage.getSendableObject();
+                String text = "No message received.";
+                if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
+                style.addLine(complexStorage.getUser(storedMessage.getUser(), localUser).getUsername() + ": " + text);
+            }
 
             style.setBigContentTitle(storedConversation.getTitle());
 
@@ -95,12 +103,16 @@ public class NotificationService
             resultIntent.putExtras(b); //Put your id to your next Intent
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT, b);
 
+            Sendable sendable = storedMessages.get(0).getSendableObject();
+            String text = "No message received.";
+            if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
+
             Notification notification = new NotificationCompat.Builder(context, "talk")
                     .setSmallIcon(R.drawable.ic_stat_notification)
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.tin))
                     .setColor(Color.parseColor("#6a80ff"))
                     .setContentTitle(storedConversation.getTitle() + ":")
-                    .setContentText(complexStorage.getUser(storedMessages.get(0).getUser(), localUser).getUsername() + ": " + storedMessages.get(0).getMessage())
+                    .setContentText(complexStorage.getUser(storedMessages.get(0).getUser(), localUser).getUsername() + ": " + text)
                     .setStyle(style)
                     .addAction(new NotificationCompat.Action(R.drawable.ic_stat_notification, "RESPONDE", pendingIntent))
                     .setContentIntent(pendingIntent)

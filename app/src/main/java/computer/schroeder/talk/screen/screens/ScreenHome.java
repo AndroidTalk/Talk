@@ -28,10 +28,12 @@ import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.SimpleStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.TokenService;
 import computer.schroeder.talk.util.Util;
+import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenHome extends Screen
 {
@@ -171,10 +173,12 @@ public class ScreenHome extends Screen
         long lastMessageTime = 0;
         int unread = getScreenManager().getMain().getComplexStorage().getComplexStorage().messageSelectUnreadConversation(conversation.getId()).size();
 
-        StoredMessage lastMessage = getScreenManager().getMain().getComplexStorage().getComplexStorage().messageSelectLastMessageByConversation(conversation.getId());
+        StoredSendable lastMessage = getScreenManager().getMain().getComplexStorage().getComplexStorage().messageSelectLastMessageByConversation(conversation.getId());
         if(lastMessage != null)
         {
-            lastMessageText = lastMessage.getMessage();
+            Sendable sendable = lastMessage.getSendableObject();
+            lastMessageText = "No message recieved.";
+            if(sendable instanceof SendableTextMessage) lastMessageText = ((SendableTextMessage) sendable).getText();
             lastMessageTime = lastMessage.getTime();
             StoredUser user = getScreenManager().getMain().getComplexStorage().getUser(lastMessage.getUser(), localUser);
             lastMessageSender = user.getUsername();
@@ -276,7 +280,7 @@ public class ScreenHome extends Screen
                                                 getScreenManager().getMain().getServerConnection().conversationLeave(conversation.getId());
                                                 ComplexStorage complexStorage = getScreenManager().getMain().getComplexStorage().getComplexStorage();
                                                 complexStorage.conversationDelete(conversation);
-                                                for(StoredMessage storedMessage : complexStorage.messageSelectConversation(conversation.getId())) complexStorage.messageDelete(storedMessage);
+                                                for(StoredSendable storedMessage : complexStorage.messageSelectConversation(conversation.getId())) complexStorage.messageDelete(storedMessage);
                                             }
                                             getScreenManager().showHomeScreen(false);
                                         }
@@ -311,9 +315,9 @@ public class ScreenHome extends Screen
 class DisplayableConversation
 {
     StoredConversation conversation;
-    StoredMessage storedMessage;
+    StoredSendable storedMessage;
 
-    DisplayableConversation(StoredConversation storedConversation, StoredMessage storedMessage)
+    DisplayableConversation(StoredConversation storedConversation, StoredSendable storedMessage)
     {
         this.conversation = storedConversation;
         this.storedMessage = storedMessage;

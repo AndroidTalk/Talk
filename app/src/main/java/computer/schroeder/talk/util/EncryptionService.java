@@ -18,6 +18,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import computer.schroeder.talk.storage.SimpleStorage;
+import computer.schroeder.talk.util.sendable.Sendable;
 
 public class EncryptionService
 {
@@ -44,7 +45,7 @@ public class EncryptionService
         simpleStorage.setPublicKey(Base64.encodeToString(keyPair.getPublic().getEncoded(), Base64.DEFAULT));
     }
 
-    public String encryptMessage(ServerConnection serverConnection, Message message, long user) throws Exception
+    public String encryptMessage(ServerConnection serverConnection, String json, long user) throws Exception
     {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(128);
@@ -52,7 +53,7 @@ public class EncryptionService
 
         Cipher aesCipher = Cipher.getInstance("AES");
         aesCipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] encryptedMessage = aesCipher.doFinal(message.toJson().getBytes());
+        byte[] encryptedMessage = aesCipher.doFinal(json.getBytes());
 
         String publicKey = serverConnection.getPublicKey(user);
 
@@ -67,7 +68,7 @@ public class EncryptionService
         return Base64.encodeToString(sendable.toString().getBytes(), Base64.DEFAULT);
     }
 
-    public Message decryptMesage(String message) throws Exception
+    public String decryptMesage(String message) throws Exception
     {
         JSONObject object = new JSONObject(new String(Base64.decode(message, Base64.DEFAULT)));
         byte[] encryptedMessage = Base64.decode(object.getString("encryptedMessage"), Base64.DEFAULT);
@@ -83,6 +84,6 @@ public class EncryptionService
         byte[] bytejson = aesCipher.doFinal(encryptedMessage);
         String json = new String(bytejson);
 
-        return Message.fromJson(json);
+        return json;
     }
 }
