@@ -23,6 +23,7 @@ import computer.schroeder.talk.storage.SimpleStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
 import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class NotificationService
@@ -106,6 +107,7 @@ public class NotificationService
             Sendable sendable = storedMessages.get(0).getSendableObject();
             String text = "No message received.";
             if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
+            else if(sendable instanceof SendableGroupOnAdd) text = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
 
             Notification notification = new NotificationCompat.Builder(context, "talk")
                     .setSmallIcon(R.drawable.ic_stat_notification)

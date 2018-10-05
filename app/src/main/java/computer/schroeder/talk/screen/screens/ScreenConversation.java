@@ -28,7 +28,9 @@ import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.NotificationService;
+import computer.schroeder.talk.util.Util;
 import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
 import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenConversation extends Screen
@@ -91,32 +93,12 @@ public class ScreenConversation extends Screen
 
                         SendableTextMessage sendableTextMessage = new SendableTextMessage(message);
 
-                        final StoredSendable storedMessage = new StoredSendable();
-                        storedMessage.setTime(System.currentTimeMillis());
-                        storedMessage.setConversation(storedConversation.getId());
-                        storedMessage.setUser(localUser);
-                        storedMessage.setRead(true);
-                        storedMessage.setSent(true);
-                        storedMessage.setType("TextMessage");
-                        storedMessage.setSendable(sendableTextMessage.toString());
-                        getScreenManager().getMain().getComplexStorage().getComplexStorage().messageInsert(storedMessage);
-                        final View messageView = addMessage(storedMessage, false);
-                        try
+                        StoredSendable storedSendable = Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
+
+                        final View messageView = addMessage(storedSendable, false);
+
+                        if(!storedSendable.isSent())
                         {
-                            JSONObject object = getScreenManager().getMain().getServerConnection().conversationInfo(storedConversation.getId());
-                            JSONArray member = object.getJSONArray("member");
-                            for(int i = 0; i < member.length(); i++)
-                            {
-                                JSONObject o = (JSONObject) member.get(i);
-                                int id = o.getInt("id");
-                                if(id == localUser) continue;
-                                getScreenManager().getMain().getServerConnection().messageSend(getScreenManager().getMain().getEncryptionService(), storedMessage.getType(), sendableTextMessage, id, storedConversation.getId());
-                            }
-                        }
-                        catch(Exception e)
-                        {
-                            storedMessage.setSent(false);
-                            getComplexStorage().getComplexStorage().messageInsert(storedMessage);
                             getScreenManager().getMain().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -197,6 +179,7 @@ public class ScreenConversation extends Screen
         Sendable sendable = storedMessage.getSendableObject();
         String text = "No text received.";
         if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
+        else if(sendable instanceof SendableGroupOnAdd) text = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
 
         textViewMessage.setText(text);
         TextView textViewTime = messageView.findViewById(R.id.time);

@@ -124,12 +124,12 @@ public class ServerConnection
         }
     }
 
-    public void messageSend(EncryptionService encryptionService, String type, Sendable message, long user, long conversation)
+    public void messageSend(EncryptionService encryptionService, Sendable sendable, long user, long conversation)
     {
         try
         {
-            String msg = encryptionService.encryptMessage(this, message.toString(), user);
-            request("messageSend", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&type=" + type + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
+            String msg = encryptionService.encryptMessage(this, sendable.toString(), user);
+            request("messageSend", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&type=" + sendable.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
         }
         catch (Exception e)
         {

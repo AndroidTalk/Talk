@@ -33,6 +33,7 @@ import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.TokenService;
 import computer.schroeder.talk.util.Util;
 import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
 import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenHome extends Screen
@@ -179,6 +180,7 @@ public class ScreenHome extends Screen
             Sendable sendable = lastMessage.getSendableObject();
             lastMessageText = "No message recieved.";
             if(sendable instanceof SendableTextMessage) lastMessageText = ((SendableTextMessage) sendable).getText();
+            else if(sendable instanceof SendableGroupOnAdd) lastMessageText = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
             lastMessageTime = lastMessage.getTime();
             StoredUser user = getScreenManager().getMain().getComplexStorage().getUser(lastMessage.getUser(), localUser);
             lastMessageSender = user.getUsername();
@@ -282,7 +284,12 @@ public class ScreenHome extends Screen
                                                 complexStorage.conversationDelete(conversation);
                                                 for(StoredSendable storedMessage : complexStorage.messageSelectConversation(conversation.getId())) complexStorage.messageDelete(storedMessage);
                                             }
-                                            getScreenManager().showHomeScreen(false);
+                                            getScreenManager().getMain().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    getScreenManager().showHomeScreen(false);
+                                                }
+                                            });
                                         }
                                     }).start();
                                 }

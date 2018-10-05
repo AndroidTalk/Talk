@@ -30,8 +30,8 @@ public abstract class Sendable
         try
         {
             JSONObject jsonObject = new JSONObject(json);
-            Sendable sendable = null;
-            if(type.equals("TextMessage")) sendable = new SendableTextMessage();
+            Class c = Class.forName("computer.schroeder.talk.util.sendable." + type);
+            Sendable sendable = (Sendable) c.newInstance();
             if(sendable != null)
             {
                 sendable.fromJsonChild(jsonObject);

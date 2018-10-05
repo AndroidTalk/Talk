@@ -1,17 +1,24 @@
 package computer.schroeder.talk.util;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import computer.schroeder.talk.Main;
+import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.screens.Screen;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenHome;
 import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredSendable;
+import computer.schroeder.talk.util.sendable.Sendable;
 
 public class Util
 {
@@ -80,6 +87,41 @@ public class Util
                 }
             }
         }
+    }
+
+    public static StoredSendable sendSendable(Main main, long conversation, Sendable sendable)
+    {
+        int localUser = main.getSimpleStorage().getUser();
+        final StoredSendable storedSendable = new StoredSendable();
+        storedSendable.setTime(System.currentTimeMillis());
+        storedSendable.setConversation(conversation);
+        storedSendable.setUser(localUser);
+        storedSendable.setRead(true);
+        storedSendable.setType(sendable.getClass().getSimpleName());
+        storedSendable.setSendable(sendable.toString());
+
+        boolean sent = false;
+
+        try
+        {
+            JSONObject object = main.getServerConnection().conversationInfo(conversation);
+            JSONArray member = object.getJSONArray("member");
+            for(int i = 0; i < member.length(); i++)
+            {
+                JSONObject o = (JSONObject) member.get(i);
+                int id = o.getInt("id");
+                if(id == localUser) continue;
+                main.getServerConnection().messageSend(main.getEncryptionService(), sendable, id, conversation);
+            }
+            sent = true;
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        storedSendable.setSent(sent);
+        main.getComplexStorage().getComplexStorage().messageInsert(storedSendable);
+        return storedSendable;
     }
 
 }

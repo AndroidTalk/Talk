@@ -22,6 +22,9 @@ import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.storage.entities.StoredUser;
+import computer.schroeder.talk.util.Util;
+import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
+import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenConversationInfo extends Screen
 {
@@ -87,6 +90,9 @@ public class ScreenConversationInfo extends Screen
                                                 try
                                                 {
                                                     getScreenManager().getMain().getServerConnection().conversationAdd(storedConversation.getId(), Long.parseLong(input.getText().toString()));
+
+                                                    SendableGroupOnAdd sendableTextMessage = new SendableGroupOnAdd(Long.parseLong(input.getText().toString()));
+                                                    Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
                                                 }
                                                 catch(Exception e)
                                                 {
