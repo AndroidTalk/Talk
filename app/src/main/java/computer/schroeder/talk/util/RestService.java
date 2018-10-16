@@ -18,10 +18,10 @@ import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.util.sendable.Sendable;
 
-public class ServerConnection
+public class RestService
 {
     private SimpleStorage simpleStorage;
-    public ServerConnection(Context context)
+    public RestService(Context context)
     {
         this.simpleStorage = new SimpleStorage(context);
     }
@@ -128,7 +128,7 @@ public class ServerConnection
     {
         try
         {
-            String msg = encryptionService.encryptMessage(this, sendable.toString(), user);
+            String msg = encryptionService.encryptMessage(this, sendable.asJsonString(), user);
             request("messageSend", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&type=" + sendable.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
         }
         catch (Exception e)

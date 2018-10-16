@@ -40,7 +40,7 @@ public class NotificationService
         notificationManager.cancel((int) conversation);
     }
 
-    public static void update(Context context, ComplexStorageImpl complexStorage)
+    public static void update(Context context, ComplexStorageWrapper complexStorage)
     {
         int localUser = new SimpleStorage(context).getUser();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

@@ -7,6 +7,10 @@ public class SimpleStorage
 {
     private SharedPreferences preferences;
 
+    /**
+     * Creates a simple storage object
+     * @param context
+     */
     public SimpleStorage(Context context)
     {
         this.preferences = context.getSharedPreferences("chat", Context.MODE_PRIVATE);

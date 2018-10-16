@@ -12,6 +12,10 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 
 public class TokenService extends FirebaseMessagingService
 {
+    /**
+     * Requests a new firebase instance id token and sends it to the backend
+     * @param context used to request the token and access the backend
+     */
     public void updateToken(final Context context)
     {
         new Thread(new Runnable()
@@ -33,7 +37,7 @@ public class TokenService extends FirebaseMessagingService
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    new ServerConnection(context).updateFCMToken(token);
+                                    new RestService(context).updateFCMToken(token);
                                 }
                             }).start();
                         }
@@ -42,14 +46,18 @@ public class TokenService extends FirebaseMessagingService
         }).start();
     }
 
+    /**
+     * Sends a new token to the backend
+     * @param token the new token
+     */
     @Override
-    public void onNewToken(final String s)
+    public void onNewToken(final String token)
     {
-        super.onNewToken(s);
+        super.onNewToken(token);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                new ServerConnection(TokenService.this).updateFCMToken(s);
+                new RestService(TokenService.this).updateFCMToken(token);
             }
         }).start();
     }

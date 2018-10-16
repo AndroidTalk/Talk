@@ -76,7 +76,7 @@ public class ScreenHome extends Screen
                             {
                                 try
                                 {
-                                    int id = getScreenManager().getMain().getServerConnection().createConversation();
+                                    int id = getScreenManager().getMain().getRestService().createConversation();
                                     StoredConversation conversation = getComplexStorage().getConversation(id);
                                     getScreenManager().showConversationScreen(conversation);
 
@@ -105,7 +105,7 @@ public class ScreenHome extends Screen
             {
                 if(simpleStorage.getUser() == -1 || simpleStorage.getUserKey() == null)
                 {
-                    Object[] values = getScreenManager().getMain().getServerConnection().userRegister();
+                    Object[] values = getScreenManager().getMain().getRestService().userRegister();
                     simpleStorage.setUserKey((String) values[0]);
                     simpleStorage.setUser((int) values[1]);
                     localUser = getScreenManager().getMain().getSimpleStorage().getUser();
@@ -115,7 +115,7 @@ public class ScreenHome extends Screen
             {
                 throw new Exception("To start using Chat you need an internet connection.");
             }
-            getScreenManager().getMain().getServerConnection().updatePublicKey(simpleStorage.getPublicKey());
+            getScreenManager().getMain().getRestService().updatePublicKey(simpleStorage.getPublicKey());
             new TokenService().updateToken(getScreenManager().getMain());
             Util.sync(getScreenManager().getMain());
         }
@@ -279,7 +279,7 @@ public class ScreenHome extends Screen
                                         public void run() {
                                             for(StoredConversation conversation : selected)
                                             {
-                                                getScreenManager().getMain().getServerConnection().conversationLeave(conversation.getId());
+                                                getScreenManager().getMain().getRestService().conversationLeave(conversation.getId());
                                                 ComplexStorage complexStorage = getScreenManager().getMain().getComplexStorage().getComplexStorage();
                                                 complexStorage.conversationDelete(conversation);
                                                 for(StoredSendable storedMessage : complexStorage.messageSelectConversation(conversation.getId())) complexStorage.messageDelete(storedMessage);

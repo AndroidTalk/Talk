@@ -1,8 +1,6 @@
 package computer.schroeder.talk.util;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -12,7 +10,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import computer.schroeder.talk.Main;
-import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.screens.Screen;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenHome;
@@ -22,10 +19,16 @@ import computer.schroeder.talk.util.sendable.Sendable;
 
 public class Util
 {
+
+    /**
+     * Used to sync internal message storage with the backend
+     * @param context the context used to access the backend
+     * @throws Exception thrown if the decryption service fails
+     */
     public static void sync(final Context context) throws Exception
     {
-        final ComplexStorageImpl complexStorage = new ComplexStorageImpl(context);
-        ArrayList<StoredSendable> storedMessages = new ServerConnection(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
+        final ComplexStorageWrapper complexStorage = new ComplexStorageWrapper(context);
+        ArrayList<StoredSendable> storedMessages = new RestService(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
 
         if(storedMessages.isEmpty()) return;
 
@@ -36,7 +39,7 @@ public class Util
                 public void run() {
                     try
                     {
-                        new ServerConnection(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
+                        new RestService(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
                         NotificationService.update(context, complexStorage);
                     }
                     catch(Exception e)
@@ -98,20 +101,20 @@ public class Util
         storedSendable.setUser(localUser);
         storedSendable.setRead(true);
         storedSendable.setType(sendable.getClass().getSimpleName());
-        storedSendable.setSendable(sendable.toString());
+        storedSendable.setSendable(sendable.asJsonString());
 
         boolean sent = false;
 
         try
         {
-            JSONObject object = main.getServerConnection().conversationInfo(conversation);
+            JSONObject object = main.getRestService().conversationInfo(conversation);
             JSONArray member = object.getJSONArray("member");
             for(int i = 0; i < member.length(); i++)
             {
                 JSONObject o = (JSONObject) member.get(i);
                 int id = o.getInt("id");
                 if(id == localUser) continue;
-                main.getServerConnection().messageSend(main.getEncryptionService(), sendable, id, conversation);
+                main.getRestService().messageSend(main.getEncryptionService(), sendable, id, conversation);
             }
             sent = true;
         }

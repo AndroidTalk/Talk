@@ -6,12 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import computer.schroeder.talk.screen.ScreenManager;
-import computer.schroeder.talk.util.ComplexStorageImpl;
+import computer.schroeder.talk.util.ComplexStorageWrapper;
 
 public abstract class Screen
 {
     private ScreenManager screenManager;
-    private ComplexStorageImpl complexStorage;
+    private ComplexStorageWrapper complexStorage;
 
     private ViewGroup content;
     private View contentView;
@@ -29,7 +29,7 @@ public abstract class Screen
         return screenManager;
     }
 
-    ComplexStorageImpl getComplexStorage() {
+    ComplexStorageWrapper getComplexStorage() {
         return complexStorage;
     }
 

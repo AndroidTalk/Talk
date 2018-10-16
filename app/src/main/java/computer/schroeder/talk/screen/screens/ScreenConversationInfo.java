@@ -24,7 +24,6 @@ import computer.schroeder.talk.storage.entities.StoredSendable;
 import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.Util;
 import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
-import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenConversationInfo extends Screen
 {
@@ -54,7 +53,7 @@ public class ScreenConversationInfo extends Screen
         long localUser = getScreenManager().getMain().getSimpleStorage().getUser();
         try
         {
-            JSONObject object = getScreenManager().getMain().getServerConnection().conversationInfo(storedConversation.getId());
+            JSONObject object = getScreenManager().getMain().getRestService().conversationInfo(storedConversation.getId());
             JSONArray member = object.getJSONArray("member");
             int owner = object.getInt("owner");
             for(int i = 0; i < member.length(); i++)
@@ -89,7 +88,7 @@ public class ScreenConversationInfo extends Screen
                                             {
                                                 try
                                                 {
-                                                    getScreenManager().getMain().getServerConnection().conversationAdd(storedConversation.getId(), Long.parseLong(input.getText().toString()));
+                                                    getScreenManager().getMain().getRestService().conversationAdd(storedConversation.getId(), Long.parseLong(input.getText().toString()));
 
                                                     SendableGroupOnAdd sendableTextMessage = new SendableGroupOnAdd(Long.parseLong(input.getText().toString()));
                                                     Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
@@ -178,7 +177,7 @@ public class ScreenConversationInfo extends Screen
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            getScreenManager().getMain().getServerConnection().conversationLeave(storedConversation.getId());
+                                            getScreenManager().getMain().getRestService().conversationLeave(storedConversation.getId());
                                             ComplexStorage complexStorage = getScreenManager().getMain().getComplexStorage().getComplexStorage();
                                             complexStorage.conversationDelete(storedConversation);
                                             for(StoredSendable storedMessage : complexStorage.messageSelectConversation(storedConversation.getId())) complexStorage.messageDelete(storedMessage);
@@ -264,7 +263,7 @@ public class ScreenConversationInfo extends Screen
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        getScreenManager().getMain().getServerConnection().conversationRemove(storedConversation.getId(), storedUser.getId());
+                                        getScreenManager().getMain().getRestService().conversationRemove(storedConversation.getId(), storedUser.getId());
                                         getScreenManager().showConversationInfoScreen(storedConversation);
                                     }
                                 }).start();
@@ -287,7 +286,7 @@ public class ScreenConversationInfo extends Screen
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        getScreenManager().getMain().getServerConnection().conversationOwner(storedConversation.getId(), storedUser.getId());
+                                        getScreenManager().getMain().getRestService().conversationOwner(storedConversation.getId(), storedUser.getId());
                                         getScreenManager().showConversationInfoScreen(storedConversation);
                                     }
                                 }).start();
@@ -310,7 +309,7 @@ public class ScreenConversationInfo extends Screen
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        getScreenManager().getMain().getServerConnection().conversationRemove(storedConversation.getId(), storedUser.getId());
+                                        getScreenManager().getMain().getRestService().conversationRemove(storedConversation.getId(), storedUser.getId());
                                         getScreenManager().showConversationInfoScreen(storedConversation);
                                     }
                                 }).start();

@@ -11,18 +11,18 @@ import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenConversationInfo;
 import computer.schroeder.talk.screen.screens.ScreenHome;
 import computer.schroeder.talk.storage.SimpleStorage;
-import computer.schroeder.talk.util.ComplexStorageImpl;
+import computer.schroeder.talk.util.ComplexStorageWrapper;
 import computer.schroeder.talk.util.EncryptionService;
-import computer.schroeder.talk.util.ServerConnection;
+import computer.schroeder.talk.util.RestService;
 
 public class Main extends AppCompatActivity
 {
     private static boolean open;
     private static ScreenManager screenManager;
     private SimpleStorage simpleStorage;
-    private ComplexStorageImpl complexStorage;
+    private ComplexStorageWrapper complexStorage;
     private EncryptionService encryptionService;
-    private ServerConnection serverConnection;
+    private RestService restService;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -31,11 +31,15 @@ public class Main extends AppCompatActivity
         startWithState(savedInstanceState);
     }
 
+    /**
+     * Setup for components
+     * Called whenever the app is started without a stored state
+     */
     private void init()
     {
         screenManager = new ScreenManager(this);
         simpleStorage = new SimpleStorage(this);
-        complexStorage = new ComplexStorageImpl(this);
+        complexStorage = new ComplexStorageWrapper(this);
         try
         {
             encryptionService = new EncryptionService(this);
@@ -45,16 +49,8 @@ public class Main extends AppCompatActivity
             e.printStackTrace();
             finish();
         }
-        serverConnection = new ServerConnection(this);
+        restService = new RestService(this);
     }
-
-    /*@Override
-    protected void onStart()
-    {
-        super.onStart();
-        //System.out.println("onStart: " + getIntent().getExtras());
-        //startWithState(getIntent().getExtras());
-    }*/
 
     @Override
     protected void onResume()
@@ -124,6 +120,10 @@ public class Main extends AppCompatActivity
         }
     }
 
+    /**
+     * Starts the app with a previous stored state
+     * @param bundle the state which should be opened again
+     */
     public void startWithState(Bundle bundle)
     {
         init();
@@ -152,26 +152,50 @@ public class Main extends AppCompatActivity
         getScreenManager().showHomeScreen(true);
     }
 
+    /**
+     * Used for notifications
+     * @return true if the app is in foreground
+     */
     public static boolean isClosed() {
         return !open;
     }
 
+    /**
+     *
+     * @return the simple storage used to store basic parameter
+     */
     public SimpleStorage getSimpleStorage() {
         return simpleStorage;
     }
 
-    public ComplexStorageImpl getComplexStorage() {
+    /**
+     *
+     * @return the complex storage used to store users, messages and sendables
+     */
+    public ComplexStorageWrapper getComplexStorage() {
         return complexStorage;
     }
 
+    /**
+     *
+     * @return the encryption service which is used to encrypt and decrypt sendables
+     */
     public EncryptionService getEncryptionService() {
         return encryptionService;
     }
 
-    public ServerConnection getServerConnection() {
-        return serverConnection;
+    /**
+     *
+     * @return the Rest Client used to communicate with the backend
+     */
+    public RestService getRestService() {
+        return restService;
     }
 
+    /**
+     *
+     * @return the screen manager used to manage the shown screen
+     */
     public static ScreenManager getScreenManager() {
         return screenManager;
     }

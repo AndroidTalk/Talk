@@ -8,20 +8,35 @@ import computer.schroeder.talk.storage.Database;
 import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredUser;
 
-public class ComplexStorageImpl
+public class ComplexStorageWrapper
 {
     private ComplexStorage complexStorage;
 
-    public ComplexStorageImpl(Context context)
+    /**
+     * Creates a new complex storage object
+     * @param context the context of the complex storage
+     */
+    public ComplexStorageWrapper(Context context)
     {
         this.complexStorage = Room.databaseBuilder(context,
                         Database.class, "chat").build().getDatabase();
     }
 
+    /**
+     * Returns the raw complex storage used to access the internal database
+     * @return the complex storage
+     */
     public ComplexStorage getComplexStorage() {
         return complexStorage;
     }
 
+    /**
+     * Returns a user, and creates one if the user does not exists
+     * Nice to know: if the id is equal to the local user, the name is changed to "You"
+     * @param id the requested id
+     * @param localUser
+     * @return
+     */
     public StoredUser getUser(long id, long localUser)
     {
         StoredUser user = complexStorage.userSelect(id);
@@ -36,6 +51,11 @@ public class ComplexStorageImpl
         return user;
     }
 
+    /**
+     * Returns a conversation, and creates one if there is non with the given id
+     * @param id of the conversation
+     * @return a stored conversation
+     */
     public StoredConversation getConversation(long id)
     {
         StoredConversation conversation = complexStorage.conversationSelect(id);

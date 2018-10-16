@@ -18,7 +18,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import computer.schroeder.talk.storage.SimpleStorage;
-import computer.schroeder.talk.util.sendable.Sendable;
 
 public class EncryptionService
 {
@@ -26,6 +25,11 @@ public class EncryptionService
 
     private PrivateKey privateKey;
 
+    /**
+     * Creates a new encryption service
+     * @param context the context
+     * @throws Exception thrown if the stored key pair is invalid
+     */
     public EncryptionService(Context context) throws Exception
     {
         simpleStorage = new SimpleStorage(context);
@@ -36,6 +40,10 @@ public class EncryptionService
         //publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.decode(simpleStorage.getPublicKey(), Base64.DEFAULT)));
     }
 
+    /**
+     * Creates and stores a new key pair
+     * @throws Exception thrown if the creation fails
+     */
     private void createKey() throws Exception
     {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
@@ -45,7 +53,16 @@ public class EncryptionService
         simpleStorage.setPublicKey(Base64.encodeToString(keyPair.getPublic().getEncoded(), Base64.DEFAULT));
     }
 
-    public String encryptMessage(ServerConnection serverConnection, String json, long user) throws Exception
+    /**
+     * Encrypts a sendable json
+     * To do so it requests the public key of the recipient from the backend
+     * @param restService the rest service used to request the public key
+     * @param json the actual unencrypted json sendable
+     * @param user the recipient id
+     * @return the encrypted sendable (a base64 string containing a json with the aes key and the actual encrypted message)
+     * @throws Exception
+     */
+    public String encryptMessage(RestService restService, String json, long user) throws Exception
     {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(128);
@@ -55,7 +72,7 @@ public class EncryptionService
         aesCipher.init(Cipher.ENCRYPT_MODE, key);
         byte[] encryptedMessage = aesCipher.doFinal(json.getBytes());
 
-        String publicKey = serverConnection.getPublicKey(user);
+        String publicKey = restService.getPublicKey(user);
 
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.PUBLIC_KEY, KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.decode(publicKey.getBytes(), Base64.DEFAULT))));
@@ -68,6 +85,12 @@ public class EncryptionService
         return Base64.encodeToString(sendable.toString().getBytes(), Base64.DEFAULT);
     }
 
+    /**
+     * Decrypts a messages using the stored private key
+     * @param message the encrypted message
+     * @return the decrypted json sendable
+     * @throws Exception if the decryption fails
+     */
     public String decryptMesage(String message) throws Exception
     {
         JSONObject object = new JSONObject(new String(Base64.decode(message, Base64.DEFAULT)));
