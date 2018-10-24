@@ -30,21 +30,21 @@ public class RestService
     {
         JSONObject json = request("userRegister", "");
         Object[] response = new Object[2];
-        response[0] = json.getString("userKey");
-        response[1] = json.getInt("user");
+        response[0] = json.getString("userId");
+        response[1] = json.getString("userKey");
         return response;
     }
 
-    public JSONObject conversationInfo(long conversation) throws Exception
+    public JSONObject conversationInfo(String conversation) throws Exception
     {
-        return request("conversationInfo", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
+        return request("conversationInfo", "conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
     }
 
-    public void conversationRemove(long conversation, long user)
+    public void conversationRemove(String conversation, String target)
     {
         try
         {
-            request("conversationRemove", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8") + "&user=" + URLEncoder.encode("" + user, "UTF-8"));
+            request("conversationRemove", "conversation=" + URLEncoder.encode("" + conversation, "UTF-8") + "&target=" + URLEncoder.encode("" + target, "UTF-8"));
         }
         catch(Exception e)
         {
@@ -52,11 +52,11 @@ public class RestService
         }
     }
 
-    public void conversationAdd(long conversation, long user)
+    public void conversationAdd(String conversation, String target)
     {
         try
         {
-            request("conversationAdd", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8") + "&user=" + URLEncoder.encode("" + user, "UTF-8"));
+            request("conversationAdd",  "conversation=" + URLEncoder.encode("" + conversation, "UTF-8") + "&target=" + URLEncoder.encode("" + target, "UTF-8"));
         }
         catch(Exception e)
         {
@@ -64,11 +64,11 @@ public class RestService
         }
     }
 
-    public void conversationLeave(long conversation)
+    public void conversationLeave(String conversation)
     {
         try
         {
-            request("conversationLeave", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
+            request("conversationLeave", "conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
         }
         catch(Exception e)
         {
@@ -76,11 +76,11 @@ public class RestService
         }
     }
 
-    public void conversationOwner(long conversation, long user)
+    public void conversationOwner(String conversation, String target)
     {
         try
         {
-            request("conversationOwner", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8") + "&user=" + URLEncoder.encode("" + user, "UTF-8"));
+            request("conversationOwner", "conversation=" + URLEncoder.encode("" + conversation, "UTF-8") + "&target=" + URLEncoder.encode("" + target, "UTF-8"));
         }
         catch(Exception e)
         {
@@ -88,15 +88,15 @@ public class RestService
         }
     }
 
-    public int createConversation() throws Exception
+    public String createConversation() throws Exception
     {
-        JSONObject json = request("conversationCreate", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8"));
-        return json.getInt("id");
+        JSONObject json = request("conversationCreate", null);
+        return json.getString("id");
     }
 
-    public String getPublicKey(long user) throws Exception
+    public String getPublicKey(String target) throws Exception
     {
-        JSONObject json = request("userPublicKey", "user=" + URLEncoder.encode("" + user, "UTF-8"));
+        JSONObject json = request("userPublicKey", "target=" + target);
         return json.getString("publicKey");
     }
 
@@ -104,7 +104,7 @@ public class RestService
     {
         try
         {
-            request("userUpdateFCMToken", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&fcmToken=" + URLEncoder.encode(token, "UTF-8"));
+            request("userUpdateFCMToken", "fcmToken=" + URLEncoder.encode(token, "UTF-8"));
         }
         catch (Exception e)
         {
@@ -116,7 +116,7 @@ public class RestService
     {
         try
         {
-            request("userUpdatePublicKey", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&publicKey=" + URLEncoder.encode(publicKey, "UTF-8"));
+            request("userUpdatePublicKey", "publicKey=" + URLEncoder.encode(publicKey, "UTF-8"));
         }
         catch (Exception e)
         {
@@ -124,17 +124,11 @@ public class RestService
         }
     }
 
-    public void messageSend(EncryptionService encryptionService, Sendable sendable, long user, long conversation)
+    public String messageSend(EncryptionService encryptionService, Sendable sendable, String user, String conversation) throws Exception
     {
-        try
-        {
-            String msg = encryptionService.encryptMessage(this, sendable.asJsonString(), user);
-            request("messageSend", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&type=" + sendable.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        String msg = encryptionService.encryptMessage(this, sendable.asJsonString(), user);
+        JSONObject json = request("messageSend", "type=" + sendable.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
+        return json.getString("id");
     }
 
     public ArrayList<StoredSendable> messageSync(EncryptionService encryptionService, ComplexStorage complexStorage)
@@ -142,17 +136,18 @@ public class RestService
         ArrayList<StoredSendable> storedMessages = new ArrayList<>();
         try
         {
-            JSONObject object = request("messageSync", "userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8"));
+            JSONObject object = request("messageSync", null);
             JSONArray messages = object.getJSONArray("messages");
             for(int i = 0; i < messages.length(); i++)
             {
                 System.out.println("NEW MESSAGE");
 
                 JSONObject msg = messages.getJSONObject(i);
-                int sender = msg.getInt("sender");
-                int conversation = msg.getInt("conversation");
+                String sender = msg.getString("sender");
+                String conversation = msg.getString("conversation");
                 String type = msg.getString("type");
                 String encrypted = msg.getString("message");
+                String id = msg.getString("id");
 
                 String message = encryptionService.decryptMesage(encrypted);
 
@@ -164,9 +159,8 @@ public class RestService
                 storedMessage.setSendable(message);
                 storedMessage.setType(type);
                 storedMessage.setTime(System.currentTimeMillis());
-
-                long newId = complexStorage.messageInsert(storedMessage);
-                storedMessage.setId(newId);
+                storedMessage.setId(id);
+                complexStorage.messageInsert(storedMessage);
                 storedMessages.add(storedMessage);
 
                 StoredConversation c = complexStorage.conversationSelect(conversation);
@@ -192,23 +186,10 @@ public class RestService
 
     private JSONObject request(String type, String request) throws Exception
     {
-        HttpURLConnection connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type + "&" + request).openConnection();
-        System.out.println("https://talk.schroeder.computer/api.php?api=" + type + "&" + request);
+        HttpURLConnection connection;
+        if(simpleStorage.getUserId() != null && simpleStorage.getUserKey() != null) connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type + "&userId=" + URLEncoder.encode(simpleStorage.getUserId(), "UTF-8") + "&userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + (request != null ?  "&" + request : "")).openConnection();
+        else connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type  + (request != null ?  "&" + request : "")).openConnection();
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         return new JSONObject(br.readLine());
     }
-
-    /*public boolean isReachable()
-    {
-        try
-        {
-            HttpURLConnection connection = (HttpURLConnection) new URL("https://chat.schroeder.computer/api/").openConnection();
-            return connection.getResponseCode() == 200;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return false;
-    }*/
 }

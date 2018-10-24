@@ -13,9 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,9 +33,9 @@ import computer.schroeder.talk.util.sendable.SendableTextMessage;
 public class ScreenConversation extends Screen
 {
     private long lastTime;
-    private int localUser;
+    private String localUserId;
     private StoredConversation storedConversation;
-    private long conversationID = -1;
+    private String conversationID = null;
 
     private LinearLayout messages;
     private ScrollView scrollView;
@@ -51,7 +48,7 @@ public class ScreenConversation extends Screen
         this.storedConversation = storedConversation;
     }
 
-    public ScreenConversation(ScreenManager screenManager, long storedConversation)
+    public ScreenConversation(ScreenManager screenManager, String storedConversation)
     {
         super(screenManager, R.layout.screen_conversation);
         conversationID = storedConversation;
@@ -60,9 +57,9 @@ public class ScreenConversation extends Screen
     @Override
     public void show() throws Exception
     {
-        if(storedConversation == null && conversationID != -1) storedConversation = getComplexStorage().getConversation(conversationID);
+        if(storedConversation == null && conversationID != null) storedConversation = getComplexStorage().getConversation(conversationID);
         if(storedConversation == null) throw new Exception();
-        localUser = getScreenManager().getMain().getSimpleStorage().getUser();
+        localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
         messages = getContentView().findViewById(R.id.messages);
         scrollView = getContentView().findViewById(R.id.scroll);
 
@@ -157,7 +154,7 @@ public class ScreenConversation extends Screen
     {
         final View messageView;
 
-        if(storedMessage.getUser() == localUser)
+        if(storedMessage.getUser().equals(localUserId))
         {
             messageView = getScreenManager().getInflater().inflate(R.layout.display_message_sent, messages, false);
             ImageView status = messageView.findViewById(R.id.status);
@@ -171,7 +168,7 @@ public class ScreenConversation extends Screen
             messageView = getScreenManager().getInflater().inflate(R.layout.display_message_received, messages, false);
             TextView textViewUsername = messageView.findViewById(R.id.username);
             textViewUsername.setText(getScreenManager().getMain().getString(R.string.username, storedMessage.getUser()));
-            StoredUser user = getComplexStorage().getUser(storedMessage.getUser(), localUser);
+            StoredUser user = getComplexStorage().getUser(storedMessage.getUser(), localUserId);
             textViewUsername.setText(user.getUsername());
         }
         TextView textViewMessage = messageView.findViewById(R.id.message);

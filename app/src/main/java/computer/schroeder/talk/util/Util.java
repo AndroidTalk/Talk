@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import computer.schroeder.talk.Main;
 import computer.schroeder.talk.screen.screens.Screen;
@@ -59,7 +60,7 @@ public class Util
                     ScreenConversation screenConversation = (ScreenConversation) screen;
                     for(StoredSendable storedMessage : storedMessages)
                     {
-                        if(screenConversation.getStoredConversation().getId() == storedMessage.getConversation())
+                        if(screenConversation.getStoredConversation().getId().equals(storedMessage.getConversation()))
                         {
                             storedMessage.setRead(true);
                             complexStorage.getComplexStorage().messageUpdate(storedMessage);
@@ -92,17 +93,17 @@ public class Util
         }
     }
 
-    public static StoredSendable sendSendable(Main main, long conversation, Sendable sendable)
+    public static StoredSendable sendSendable(Main main, String conversation, Sendable sendable)
     {
-        int localUser = main.getSimpleStorage().getUser();
+        String localUserId = main.getSimpleStorage().getUserId();
         final StoredSendable storedSendable = new StoredSendable();
         storedSendable.setTime(System.currentTimeMillis());
         storedSendable.setConversation(conversation);
-        storedSendable.setUser(localUser);
+        storedSendable.setUser(localUserId);
         storedSendable.setRead(true);
         storedSendable.setType(sendable.getClass().getSimpleName());
         storedSendable.setSendable(sendable.asJsonString());
-
+        storedSendable.setId(UUID.randomUUID().toString());
         boolean sent = false;
 
         try
@@ -112,9 +113,10 @@ public class Util
             for(int i = 0; i < member.length(); i++)
             {
                 JSONObject o = (JSONObject) member.get(i);
-                int id = o.getInt("id");
-                if(id == localUser) continue;
-                main.getRestService().messageSend(main.getEncryptionService(), sendable, id, conversation);
+                String id = o.getString("id");
+                if(id.equals(localUserId)) continue;
+                String messageId = main.getRestService().messageSend(main.getEncryptionService(), sendable, id, conversation);
+                storedSendable.setId(messageId);
             }
             sent = true;
         }

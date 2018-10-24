@@ -2,31 +2,33 @@ package computer.schroeder.talk.storage.entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import computer.schroeder.talk.util.sendable.Sendable;
 
 @Entity
 public class StoredSendable
 {
-    @PrimaryKey(autoGenerate = true)
-    private long id;
-    private long conversation;
-    private long user;
+    @PrimaryKey
+    @NonNull
+    private String id;
+    private String conversation;
+    private String user;
     private long time;
     private boolean read;
     private boolean sent;
     private String type;
     private String sendable;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public long getConversation() {
+    public String getConversation() {
         return conversation;
     }
 
-    public long getUser() {
+    public String getUser() {
         return user;
     }
 
@@ -50,15 +52,15 @@ public class StoredSendable
         return sendable;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public void setConversation(long conversation) {
+    public void setConversation(String conversation) {
         this.conversation = conversation;
     }
 
-    public void setUser(long user) {
+    public void setUser(String user) {
         this.user = user;
     }
 

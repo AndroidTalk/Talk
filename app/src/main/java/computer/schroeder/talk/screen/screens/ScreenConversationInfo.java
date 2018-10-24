@@ -28,11 +28,11 @@ import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
 public class ScreenConversationInfo extends Screen
 {
     private StoredConversation storedConversation;
-    private long conversationID;
+    private String conversationID;
 
     private LinearLayout member;
 
-    public ScreenConversationInfo(ScreenManager screenManager, long storedConversation)
+    public ScreenConversationInfo(ScreenManager screenManager, String storedConversation)
     {
         super(screenManager, R.layout.screen_conversation_info);
         this.conversationID = storedConversation;
@@ -47,24 +47,24 @@ public class ScreenConversationInfo extends Screen
     @Override
     public void show() throws Exception
     {
-        if(storedConversation == null && conversationID != -1) storedConversation = getComplexStorage().getConversation(conversationID);
+        if(storedConversation == null && conversationID != null) storedConversation = getComplexStorage().getConversation(conversationID);
         if(storedConversation == null) throw new Exception();
         member = getContentView().findViewById(R.id.member);
-        long localUser = getScreenManager().getMain().getSimpleStorage().getUser();
+        String localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
         try
         {
             JSONObject object = getScreenManager().getMain().getRestService().conversationInfo(storedConversation.getId());
             JSONArray member = object.getJSONArray("member");
-            int owner = object.getInt("owner");
+            String owner = object.getString("owner");
             for(int i = 0; i < member.length(); i++)
             {
                 JSONObject o = (JSONObject) member.get(i);
-                int id = o.getInt("id");
-                StoredUser user = getComplexStorage().getUser(id, localUser);
-                addMember(user, id == owner, localUser == owner);
+                String id = o.getString("id");
+                StoredUser user = getComplexStorage().getUser(id, localUserId);
+                addMember(user, id.equals(owner), localUserId.equals(owner));
             }
 
-            if(localUser != owner) getContentView().findViewById(R.id.addUser).setVisibility(View.GONE);
+            if(!localUserId.equals(owner)) getContentView().findViewById(R.id.addUser).setVisibility(View.GONE);
             else
             {
                 getContentView().findViewById(R.id.addUser).setOnClickListener(new View.OnClickListener() {
@@ -73,7 +73,7 @@ public class ScreenConversationInfo extends Screen
                     {
                         final EditText input = new EditText(getScreenManager().getMain());
                         input.setHint("TalkTag");
-                        input.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+                        input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_CLASS_TEXT);
 
                         new AlertDialog.Builder(getScreenManager().getMain())
                                 .setTitle("Who do you want to add?")
@@ -88,9 +88,9 @@ public class ScreenConversationInfo extends Screen
                                             {
                                                 try
                                                 {
-                                                    getScreenManager().getMain().getRestService().conversationAdd(storedConversation.getId(), Long.parseLong(input.getText().toString()));
+                                                    getScreenManager().getMain().getRestService().conversationAdd(storedConversation.getId(), input.getText().toString());
 
-                                                    SendableGroupOnAdd sendableTextMessage = new SendableGroupOnAdd(Long.parseLong(input.getText().toString()));
+                                                    SendableGroupOnAdd sendableTextMessage = new SendableGroupOnAdd(input.getText().toString());
                                                     Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
                                                 }
                                                 catch(Exception e)

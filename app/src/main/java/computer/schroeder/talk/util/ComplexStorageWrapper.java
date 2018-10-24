@@ -34,10 +34,10 @@ public class ComplexStorageWrapper
      * Returns a user, and creates one if the user does not exists
      * Nice to know: if the id is equal to the local user, the name is changed to "You"
      * @param id the requested id
-     * @param localUser
+     * @param localUserId
      * @return
      */
-    public StoredUser getUser(long id, long localUser)
+    public StoredUser getUser(String id, String localUserId)
     {
         StoredUser user = complexStorage.userSelect(id);
         if(user == null)
@@ -47,7 +47,7 @@ public class ComplexStorageWrapper
             user.setUsername("#" + id);
             complexStorage.userInsert(user);
         }
-        if(id == localUser && user.getUsername().equals("#" + id)) user.setUsername("You");
+        if(id == localUserId && user.getUsername().equals("#" + id)) user.setUsername("You");
         return user;
     }
 
@@ -56,7 +56,7 @@ public class ComplexStorageWrapper
      * @param id of the conversation
      * @return a stored conversation
      */
-    public StoredConversation getConversation(long id)
+    public StoredConversation getConversation(String id)
     {
         StoredConversation conversation = complexStorage.conversationSelect(id);
         if(conversation == null)

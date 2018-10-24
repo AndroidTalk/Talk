@@ -62,7 +62,7 @@ public class EncryptionService
      * @return the encrypted sendable (a base64 string containing a json with the aes key and the actual encrypted message)
      * @throws Exception
      */
-    public String encryptMessage(RestService restService, String json, long user) throws Exception
+    public String encryptMessage(RestService restService, String json, String user) throws Exception
     {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(128);

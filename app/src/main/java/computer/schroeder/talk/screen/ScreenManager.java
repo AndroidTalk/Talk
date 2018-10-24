@@ -87,7 +87,7 @@ public class ScreenManager
         showScreen(new ScreenConversation(ScreenManager.this, conversation));
     }
 
-    public void showConversationScreen(long conversation)
+    public void showConversationScreen(String conversation)
     {
         showScreen(new ScreenConversation(ScreenManager.this, conversation));
     }
@@ -97,7 +97,7 @@ public class ScreenManager
         showScreen(new ScreenConversationInfo(ScreenManager.this, conversation));
     }
 
-    public void showConversationInfoScreen(long conversation)
+    public void showConversationInfoScreen(String conversation)
     {
         showScreen(new ScreenConversationInfo(ScreenManager.this, conversation));
     }

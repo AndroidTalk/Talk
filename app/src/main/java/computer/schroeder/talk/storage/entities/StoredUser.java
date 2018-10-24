@@ -2,15 +2,17 @@ package computer.schroeder.talk.storage.entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 @Entity
 public class StoredUser
 {
     @PrimaryKey
-    private long id;
+    @NonNull
+    private String id;
     private String username;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -18,7 +20,7 @@ public class StoredUser
         return username;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

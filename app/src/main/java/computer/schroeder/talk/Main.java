@@ -110,12 +110,12 @@ public class Main extends AppCompatActivity
             else if(getScreenManager().getCurrentScreen() instanceof ScreenConversation)
             {
                 outState.putString("screen", "CONVERSATION");
-                outState.putLong("conversation", ((ScreenConversation) getScreenManager().getCurrentScreen()).getStoredConversation().getId());
+                outState.putString("conversation", ((ScreenConversation) getScreenManager().getCurrentScreen()).getStoredConversation().getId());
             }
             else if(getScreenManager().getCurrentScreen() instanceof ScreenConversationInfo)
             {
                 outState.putString("screen", "CONVERSATION_INFO");
-                outState.putLong("conversation", ((ScreenConversationInfo) getScreenManager().getCurrentScreen()).getStoredConversation().getId());
+                outState.putString("conversation", ((ScreenConversationInfo) getScreenManager().getCurrentScreen()).getStoredConversation().getId());
             }
         }
     }
@@ -133,8 +133,8 @@ public class Main extends AppCompatActivity
         String screen = bundle.getString("screen", "HOME");
         if(screen.equals("CONVERSATION"))
         {
-            long conversation = bundle.getLong("conversation", 0);
-            if (conversation > 0)
+            String conversation = bundle.getString("conversation", null);
+            if (conversation != null)
             {
                 getScreenManager().showConversationScreen(conversation);
                 return;
@@ -142,8 +142,8 @@ public class Main extends AppCompatActivity
         }
         else if(screen.equals("CONVERSATION_INFO"))
         {
-            long conversation = bundle.getLong("conversation", 0);
-            if (conversation > 0)
+            String conversation = bundle.getString("conversation", null);
+            if (conversation != null)
             {
                 getScreenManager().showConversationScreen(conversation);
                 return;

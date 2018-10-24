@@ -19,6 +19,11 @@ public class SendableTextMessage extends Sendable
     }
 
     @Override
+    String asString() {
+        return text;
+    }
+
+    @Override
     void toJsonChild(JSONObject jsonObject) throws JSONException
     {
         jsonObject.put("text", text);

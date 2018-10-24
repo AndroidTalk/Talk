@@ -34,15 +34,15 @@ public class NotificationService
         notificationManager.cancelAll();
     }*/
 
-    public static void clear(Context context, long conversation)
+    public static void clear(Context context, String conversation)
     {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.cancel((int) conversation);
+        notificationManager.cancelAll();
     }
 
     public static void update(Context context, ComplexStorageWrapper complexStorage)
     {
-        int localUser = new SimpleStorage(context).getUser();
+        String localUser = new SimpleStorage(context).getUserId();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(notificationManager == null) return;
 
@@ -61,7 +61,7 @@ public class NotificationService
             return;
         }
 
-        HashMap<Long, ArrayList<StoredSendable>> messages = new HashMap<>();
+        HashMap<String, ArrayList<StoredSendable>> messages = new HashMap<>();
 
         for(StoredSendable storedMessage : unread)
         {
@@ -80,7 +80,7 @@ public class NotificationService
                         .build();
         notificationManager.notify(0, summaryNotification);
 
-        for(Long conversation : messages.keySet())
+        for(String conversation : messages.keySet())
         {
             StoredConversation storedConversation = complexStorage.getConversation(conversation);
             ArrayList<StoredSendable> storedMessages = messages.get(conversation);
@@ -100,7 +100,7 @@ public class NotificationService
 
             Intent resultIntent = new Intent(context, Main.class);
             Bundle b = new Bundle();
-            b.putLong("conversation", storedConversation.getId()); //Your id
+            b.putString("conversation", storedConversation.getId()); //Your id
             resultIntent.putExtras(b); //Put your id to your next Intent
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT, b);
 
@@ -121,7 +121,7 @@ public class NotificationService
                     .setGroup("NEWMESSAGE")
                     .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                     .build();
-            notificationManager.notify(conversation.intValue(), notification);
+            notificationManager.notify((int) System.currentTimeMillis(), notification);
         }
     }
 }

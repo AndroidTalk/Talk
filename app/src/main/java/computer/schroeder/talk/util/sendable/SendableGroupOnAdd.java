@@ -8,17 +8,22 @@ public class SendableGroupOnAdd extends Sendable
     /**
      * User which had been added to the group.
      */
-    private long user;
+    private String user;
 
-    public SendableGroupOnAdd(long user)
+    public SendableGroupOnAdd(String user)
     {
         this.user = user;
     }
 
     protected SendableGroupOnAdd() {}
 
-    public long getUser() {
+    public String getUser() {
         return user;
+    }
+
+    @Override
+    String asString() {
+        return "User #" + user + " has been added to the group.";
     }
 
     @Override
@@ -30,6 +35,8 @@ public class SendableGroupOnAdd extends Sendable
     @Override
     void fromJsonChild(JSONObject jsonObject) throws JSONException
     {
-        this.user = jsonObject.getLong("user");
+        this.user = jsonObject.getString("user");
     }
+
+
 }

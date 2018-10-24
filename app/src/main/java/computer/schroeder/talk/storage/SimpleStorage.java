@@ -16,6 +16,11 @@ public class SimpleStorage
         this.preferences = context.getSharedPreferences("chat", Context.MODE_PRIVATE);
     }
 
+    public String getUserId()
+    {
+        return preferences.getString("userId", null);
+    }
+
     public String getUserKey()
     {
         return preferences.getString("userKey", null);
@@ -46,13 +51,8 @@ public class SimpleStorage
         preferences.edit().putString("publicKey", publicKey).apply();
     }
 
-    public int getUser()
+    public void setUserId(String userId)
     {
-        return preferences.getInt("user", -1);
-    }
-
-    public void setUser(int localUser)
-    {
-        preferences.edit().putInt("user", localUser).apply();
+        preferences.edit().putString("userId", userId).apply();
     }
 }

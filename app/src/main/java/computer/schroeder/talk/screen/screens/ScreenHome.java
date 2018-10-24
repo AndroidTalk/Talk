@@ -38,11 +38,11 @@ import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenHome extends Screen
 {
-    private HashMap<Long, View> conversationMap = new HashMap<>();
+    private HashMap<String, View> conversationMap = new HashMap<>();
 
     private LinearLayout conversations;
     private boolean sync;
-    private int localUser;
+    private String localUserId;
 
     private ArrayList<StoredConversation> selected = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class ScreenHome extends Screen
     @Override
     public void show() throws Exception
     {
-        localUser = getScreenManager().getMain().getSimpleStorage().getUser();
+        localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
         conversations = getContentView().findViewById(R.id.conversations);
 
         FloatingActionButton newChat = getContentView().findViewById(R.id.newGroup);
@@ -76,7 +76,7 @@ public class ScreenHome extends Screen
                             {
                                 try
                                 {
-                                    int id = getScreenManager().getMain().getRestService().createConversation();
+                                    String id = getScreenManager().getMain().getRestService().createConversation();
                                     StoredConversation conversation = getComplexStorage().getConversation(id);
                                     getScreenManager().showConversationScreen(conversation);
 
@@ -103,16 +103,17 @@ public class ScreenHome extends Screen
             SimpleStorage simpleStorage = getScreenManager().getMain().getSimpleStorage();
             try
             {
-                if(simpleStorage.getUser() == -1 || simpleStorage.getUserKey() == null)
+                if(localUserId == null || simpleStorage.getUserKey() == null)
                 {
                     Object[] values = getScreenManager().getMain().getRestService().userRegister();
-                    simpleStorage.setUserKey((String) values[0]);
-                    simpleStorage.setUser((int) values[1]);
-                    localUser = getScreenManager().getMain().getSimpleStorage().getUser();
+                    simpleStorage.setUserId((String) values[0]);
+                    simpleStorage.setUserKey((String) values[1]);
+                    localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
                 }
             }
             catch(Exception e)
             {
+                e.printStackTrace();
                 throw new Exception("To start using Chat you need an internet connection.");
             }
             getScreenManager().getMain().getRestService().updatePublicKey(simpleStorage.getPublicKey());
@@ -182,7 +183,7 @@ public class ScreenHome extends Screen
             if(sendable instanceof SendableTextMessage) lastMessageText = ((SendableTextMessage) sendable).getText();
             else if(sendable instanceof SendableGroupOnAdd) lastMessageText = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
             lastMessageTime = lastMessage.getTime();
-            StoredUser user = getScreenManager().getMain().getComplexStorage().getUser(lastMessage.getUser(), localUser);
+            StoredUser user = getScreenManager().getMain().getComplexStorage().getUser(lastMessage.getUser(), localUserId);
             lastMessageSender = user.getUsername();
         }
 
@@ -258,10 +259,10 @@ public class ScreenHome extends Screen
 
     private void updateActionBar()
     {
-        if(selected.isEmpty()) getScreenManager().setActionBar(null, false, "Your TalkTag: #" + localUser);
+        if(selected.isEmpty()) getScreenManager().setActionBar(null, false, "Your TalkTag: #" + localUserId);
         else
         {
-            getScreenManager().setActionBar(R.layout.actionbar_home_selected, false, "Your TalkTag: #" + localUser);
+            getScreenManager().setActionBar(R.layout.actionbar_home_selected, false, "Your TalkTag: #" + localUserId);
             ImageView delete = getScreenManager().getActionBar().getCustomView().findViewById(R.id.delete);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -314,7 +315,7 @@ public class ScreenHome extends Screen
         return new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(new Date(time));
     }
 
-    public HashMap<Long, View> getConversationMap() {
+    public HashMap<String, View> getConversationMap() {
         return conversationMap;
     }
 }
