@@ -90,19 +90,7 @@ public class ScreenConversation extends Screen
 
                         SendableTextMessage sendableTextMessage = new SendableTextMessage(message);
 
-                        StoredSendable storedSendable = Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
-
-                        final View messageView = addMessage(storedSendable, false);
-
-                        if(!storedSendable.isSent())
-                        {
-                            getScreenManager().getMain().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ((CardView) messageView.findViewById(R.id.card)).setCardBackgroundColor(Color.parseColor("#FFFF4444"));
-                                }
-                            });
-                        }
+                        Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
                     }
                 }).start();
             }
@@ -113,6 +101,7 @@ public class ScreenConversation extends Screen
             @Override
             public void run()
             {
+
                 getScreenManager().getMain().getWindow().getDecorView().setBackground(getScreenManager().getMain().getResources().getDrawable(R.drawable.backgroundxml));
                 getScreenManager().getMain().setContentView(getContentView());
                 updateActionBar();
@@ -219,6 +208,7 @@ public class ScreenConversation extends Screen
             }
         });
 
+        if(!storedMessage.isSent()) ((CardView) messageView).setCardBackgroundColor(Color.parseColor("#FFFF4444"));
 
         long julianDayNumber1 = lastTime / 86400000;
         long julianDayNumber2 = storedMessage.getTime() / 86400000;
@@ -267,7 +257,7 @@ public class ScreenConversation extends Screen
 
     private void updateActionBar()
     {
-        if(selected.isEmpty()) getScreenManager().setActionBar(R.layout.actionbar_conversation, true, storedConversation.getTitle());
+        if(selected.isEmpty()) getScreenManager().setActionBar(null, true, storedConversation.getTitle());
         else
         {
             getScreenManager().setActionBar(R.layout.actionbar_conversation_selected, true, storedConversation.getTitle());

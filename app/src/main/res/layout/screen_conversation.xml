@@ -55,13 +55,22 @@
                     app:cardCornerRadius="23dp"
                     app:cardElevation="1dp">
 
+                    <ImageView
+                        android:id="@+id/emoji"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="5dp"
+                        app:srcCompat="@drawable/person" />
+
                     <EditText
                         android:id="@+id/messageText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginLeft="50dp"
                         android:layout_marginRight="20dp"
                         android:layout_marginTop="5dp"
                         android:background="@android:color/transparent"

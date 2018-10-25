@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import computer.schroeder.talk.Main;
 import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.screens.Screen;
+import computer.schroeder.talk.screen.screens.ScreenContacts;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenConversationInfo;
 import computer.schroeder.talk.screen.screens.ScreenError;
@@ -78,7 +79,6 @@ public class ScreenManager
 
     public void showHomeScreen(boolean sync)
     {
-        System.out.println("SHOW HOME");
         showScreen(new ScreenHome(ScreenManager.this, sync));
     }
 
@@ -97,9 +97,9 @@ public class ScreenManager
         showScreen(new ScreenConversationInfo(ScreenManager.this, conversation));
     }
 
-    public void showConversationInfoScreen(String conversation)
+    public void showContactsScreen()
     {
-        showScreen(new ScreenConversationInfo(ScreenManager.this, conversation));
+        showScreen(new ScreenContacts(ScreenManager.this));
     }
 
     private void showErrorScreen(String error)

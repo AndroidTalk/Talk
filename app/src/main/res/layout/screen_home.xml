@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="75dp">
+            android:paddingBottom="100dp">
 
         </LinearLayout>
     </ScrollView>
@@ -59,13 +59,15 @@
         fab:menu_shadowYOffset="3dp"
         fab:menu_showShadow="true">
 
-        <!--<com.github.clans.fab.FloatingActionButton
-            android:id="@+id/newChat"
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/newDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_person_add"
-            fab:fab_label="New Chat"
-            fab:fab_size="mini" />-->
+            fab:fab_colorNormal="#20c65a"
+            fab:fab_colorPressed="#20c65a"
+            fab:fab_label="New Dialog"
+            fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/newGroup"

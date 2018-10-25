@@ -94,6 +94,13 @@ public class RestService
         return json.getString("id");
     }
 
+    public String getDialog(String target) throws Exception
+    {
+        JSONObject json = request("dialogGet",  "target=" + URLEncoder.encode(target, "UTF-8"));
+        System.out.println(json);
+        return json.getString("id");
+    }
+
     public String getPublicKey(String target) throws Exception
     {
         JSONObject json = request("userPublicKey", "target=" + target);

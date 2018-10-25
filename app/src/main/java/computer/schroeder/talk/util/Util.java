@@ -93,40 +93,50 @@ public class Util
         }
     }
 
-    public static StoredSendable sendSendable(Main main, String conversation, Sendable sendable)
+    public static void sendSendable(final Main main, final String conversation, final Sendable sendable)
     {
-        String localUserId = main.getSimpleStorage().getUserId();
+        final String localUserId = main.getSimpleStorage().getUserId();
         final StoredSendable storedSendable = new StoredSendable();
         storedSendable.setTime(System.currentTimeMillis());
         storedSendable.setConversation(conversation);
         storedSendable.setUser(localUserId);
         storedSendable.setRead(true);
+        storedSendable.setSent(true);
         storedSendable.setType(sendable.getClass().getSimpleName());
         storedSendable.setSendable(sendable.asJsonString());
         storedSendable.setId(UUID.randomUUID().toString());
-        boolean sent = false;
-
-        try
-        {
-            JSONObject object = main.getRestService().conversationInfo(conversation);
-            JSONArray member = object.getJSONArray("member");
-            for(int i = 0; i < member.length(); i++)
-            {
-                JSONObject o = (JSONObject) member.get(i);
-                String id = o.getString("id");
-                if(id.equals(localUserId)) continue;
-                String messageId = main.getRestService().messageSend(main.getEncryptionService(), sendable, id, conversation);
-                storedSendable.setId(messageId);
-            }
-            sent = true;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        storedSendable.setSent(sent);
         main.getComplexStorage().getComplexStorage().messageInsert(storedSendable);
-        return storedSendable;
+
+        if(Main.getScreenManager().getCurrentScreen() instanceof ScreenConversation)
+        {
+            ScreenConversation screenConversation = (ScreenConversation) Main.getScreenManager().getCurrentScreen();
+            screenConversation.addMessage(storedSendable, false);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try
+                {
+                    JSONObject object = main.getRestService().conversationInfo(conversation);
+                    JSONArray member = object.getJSONArray("member");
+                    for(int i = 0; i < member.length(); i++)
+                    {
+                        JSONObject o = (JSONObject) member.get(i);
+                        String id = o.getString("id");
+                        if(id.equals(localUserId)) continue;
+                        String messageId = main.getRestService().messageSend(main.getEncryptionService(), sendable, id, conversation);
+                        storedSendable.setId(messageId);
+                    }
+                }
+                catch(Exception e)
+                {
+                    storedSendable.setSent(false);
+                    e.printStackTrace();
+                }
+                main.getComplexStorage().getComplexStorage().messageUpdate(storedSendable);
+            }
+        }).start();
     }
 
 }

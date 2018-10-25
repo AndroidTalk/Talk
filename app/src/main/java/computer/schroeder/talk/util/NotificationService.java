@@ -120,6 +120,8 @@ public class NotificationService
                     .setContentIntent(pendingIntent)
                     .setGroup("NEWMESSAGE")
                     .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                    .setLights(Color.GREEN, 3000, 3000)
+                    .setVibrate(new long[] { 1000, 1000, 1000 })
                     .build();
             notificationManager.notify((int) System.currentTimeMillis(), notification);
         }

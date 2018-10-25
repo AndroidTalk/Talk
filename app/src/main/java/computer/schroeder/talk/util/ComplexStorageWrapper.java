@@ -65,7 +65,7 @@ public class ComplexStorageWrapper
             conversation.setId(id);
             conversation.setBlocked(false);
             conversation.setSilent(0);
-            conversation.setTitle("Conversation #" + id);
+            conversation.setTitle("Group #" + id);
             complexStorage.conversationInsert(conversation);
         }
         return conversation;

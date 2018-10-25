@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -58,8 +60,8 @@ public class ScreenHome extends Screen
         localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
         conversations = getContentView().findViewById(R.id.conversations);
 
-        FloatingActionButton newChat = getContentView().findViewById(R.id.newGroup);
-        newChat.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton newGroup = getContentView().findViewById(R.id.newGroup);
+        newGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
@@ -95,6 +97,45 @@ public class ScreenHome extends Screen
                         }).start();
                     }
                 });
+            }
+        });
+
+        FloatingActionButton newDialog = getContentView().findViewById(R.id.newDialog);
+        newDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+
+                final EditText input = new EditText(getScreenManager().getMain());
+                input.setHint("TalkTag");
+                input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_CLASS_TEXT);
+
+                new AlertDialog.Builder(getScreenManager().getMain())
+                        .setTitle("Who do you want to talk to?")
+                        .setView(input)
+                        .setPositiveButton("Start dialog", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run()
+                                    {
+                                        try
+                                        {
+                                            String id = getScreenManager().getMain().getRestService().getDialog(input.getText().toString());
+                                            StoredConversation conversation = getComplexStorage().getConversation(id);
+                                            getScreenManager().showConversationScreen(conversation);
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).start();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null).show();
             }
         });
 
@@ -153,12 +194,13 @@ public class ScreenHome extends Screen
     @Override
     public boolean createOptionsMenu(Menu menu)
     {
-        //getScreenManager().getMenuInflater().inflate(R.menu.menu_home, menu);
-        return false;
+        getScreenManager().getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
     }
 
     @Override
     public boolean optionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.contacts) getScreenManager().showContactsScreen();
         return false;
     }
 
@@ -193,6 +235,8 @@ public class ScreenHome extends Screen
         messageView = (LinearLayout) getScreenManager().getInflater().inflate(R.layout.display_conversation, conversations, false);
         TextView textUsername = messageView.findViewById(R.id.username);
         textUsername.setText(conversation.getTitle());
+        TextView textName = messageView.findViewById(R.id.name);
+        if(conversation.getTitle().length() >= 1) textName.setText(conversation.getTitle().substring(0, 1));
         TextView textLastMessage = messageView.findViewById(R.id.lastMessage);
         textLastMessage.setText(lastMessageFull);
         TextView textViewTime = messageView.findViewById(R.id.time);

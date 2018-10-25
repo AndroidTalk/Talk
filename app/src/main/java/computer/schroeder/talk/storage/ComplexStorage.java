@@ -40,6 +40,9 @@ public interface ComplexStorage
     @Query("SELECT * FROM storedsendable WHERE read = 0 ORDER BY time DESC")
     List<StoredSendable> messageSelectUnread();
 
+    @Query("SELECT * FROM storeduser")
+    List<StoredUser> selectAllUser();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void conversationInsert(StoredConversation conversation);
 
