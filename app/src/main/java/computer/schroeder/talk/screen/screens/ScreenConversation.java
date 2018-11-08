@@ -121,6 +121,7 @@ public class ScreenConversation extends Screen
                         if(s.toString().equals(""))
                         {
                             icon.setImageResource(R.drawable.ic_mic);
+                            attachment.setVisibility(View.VISIBLE);
                             camera.setVisibility(View.VISIBLE);
                         }
                         else
