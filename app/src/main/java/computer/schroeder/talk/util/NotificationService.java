@@ -19,12 +19,12 @@ import java.util.List;
 
 import computer.schroeder.talk.R;
 import computer.schroeder.talk.Main;
+import computer.schroeder.talk.messages.Message;
+import computer.schroeder.talk.messages.MessageEventUserAdded;
+import computer.schroeder.talk.messages.MessageText;
 import computer.schroeder.talk.storage.SimpleStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
-import computer.schroeder.talk.util.sendable.Sendable;
-import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
-import computer.schroeder.talk.util.sendable.SendableTextMessage;
+import computer.schroeder.talk.storage.entities.StoredMessage;
 
 public class NotificationService
 {
@@ -53,7 +53,7 @@ public class NotificationService
             notificationManager.createNotificationChannel(channel);
         }
 
-        List<StoredSendable> unread = complexStorage.getComplexStorage().messageSelectUnread();
+        List<StoredMessage> unread = complexStorage.getComplexStorage().messageSelectUnread();
 
         if(unread.size() == 0)
         {
@@ -61,11 +61,11 @@ public class NotificationService
             return;
         }
 
-        HashMap<String, ArrayList<StoredSendable>> messages = new HashMap<>();
+        HashMap<String, ArrayList<StoredMessage>> messages = new HashMap<>();
 
-        for(StoredSendable storedMessage : unread)
+        for(StoredMessage storedMessage : unread)
         {
-            if(messages.get(storedMessage.getConversation()) == null) messages.put(storedMessage.getConversation(), new ArrayList<StoredSendable>());
+            if(messages.get(storedMessage.getConversation()) == null) messages.put(storedMessage.getConversation(), new ArrayList<StoredMessage>());
             messages.get(storedMessage.getConversation()).add(storedMessage);
         }
 
@@ -83,15 +83,15 @@ public class NotificationService
         for(String conversation : messages.keySet())
         {
             StoredConversation storedConversation = complexStorage.getConversation(conversation);
-            ArrayList<StoredSendable> storedMessages = messages.get(conversation);
+            ArrayList<StoredMessage> storedMessages = messages.get(conversation);
 
             NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
 
-            for(StoredSendable storedMessage : storedMessages)
+            for(StoredMessage storedMessage : storedMessages)
             {
-                Sendable sendable = storedMessage.getSendableObject();
+                Message message = storedMessage.getSendableObject();
                 String text = "No message received.";
-                if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
+                if(message instanceof MessageText) text = ((MessageText) message).getText();
                 style.addLine(complexStorage.getUser(storedMessage.getUser(), localUser).getUsername() + ": " + text);
             }
 
@@ -104,10 +104,10 @@ public class NotificationService
             resultIntent.putExtras(b); //Put your id to your next Intent
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT, b);
 
-            Sendable sendable = storedMessages.get(0).getSendableObject();
+            Message message = storedMessages.get(0).getSendableObject();
             String text = "No message received.";
-            if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
-            else if(sendable instanceof SendableGroupOnAdd) text = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
+            if(message instanceof MessageText) text = ((MessageText) message).getText();
+            else if(message instanceof MessageEventUserAdded) text = "User #" + ((MessageEventUserAdded) message).getUser() + " has been added to the group.";
 
             Notification notification = new NotificationCompat.Builder(context, "talk")
                     .setSmallIcon(R.drawable.ic_stat_notification)

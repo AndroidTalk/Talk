@@ -4,4 +4,5 @@
     <color name="colorPrimary">#075e55</color>
     <color name="colorPrimaryDark">#054840</color>
     <color name="colorAccent">#075e55</color>
+    <color name="colorBubble">#dcf8c6</color>
 </resources>

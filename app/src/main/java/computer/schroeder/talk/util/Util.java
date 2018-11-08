@@ -3,6 +3,7 @@ package computer.schroeder.talk.util;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,12 +16,11 @@ import computer.schroeder.talk.screen.screens.Screen;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenHome;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
-import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.storage.entities.StoredMessage;
+import computer.schroeder.talk.messages.Message;
 
 public class Util
 {
-
     /**
      * Used to sync internal message storage with the backend
      * @param context the context used to access the backend
@@ -29,7 +29,7 @@ public class Util
     public static void sync(final Context context) throws Exception
     {
         final ComplexStorageWrapper complexStorage = new ComplexStorageWrapper(context);
-        ArrayList<StoredSendable> storedMessages = new RestService(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
+        ArrayList<StoredMessage> storedMessages = new RestService(context).messageSync(new EncryptionService(context), complexStorage);
 
         if(storedMessages.isEmpty()) return;
 
@@ -40,7 +40,7 @@ public class Util
                 public void run() {
                     try
                     {
-                        new RestService(context).messageSync(new EncryptionService(context), complexStorage.getComplexStorage());
+                        new RestService(context).messageSync(new EncryptionService(context), complexStorage);
                         NotificationService.update(context, complexStorage);
                     }
                     catch(Exception e)
@@ -58,7 +58,7 @@ public class Util
                 if(screen instanceof ScreenConversation)
                 {
                     ScreenConversation screenConversation = (ScreenConversation) screen;
-                    for(StoredSendable storedMessage : storedMessages)
+                    for(StoredMessage storedMessage : storedMessages)
                     {
                         if(screenConversation.getStoredConversation().getId().equals(storedMessage.getConversation()))
                         {
@@ -72,7 +72,7 @@ public class Util
                 else if(screen instanceof ScreenHome)
                 {
                     ScreenHome screenHome = (ScreenHome) screen;
-                    for(StoredSendable storedMessage : storedMessages)
+                    for(StoredMessage storedMessage : storedMessages)
                     {
                         StoredConversation conversation = complexStorage.getConversation(storedMessage.getConversation());
                         if(screenHome.getConversationMap().containsKey(conversation.getId()))
@@ -93,24 +93,24 @@ public class Util
         }
     }
 
-    public static void sendSendable(final Main main, final String conversation, final Sendable sendable)
+    public static void sendSendable(final Main main, final String conversation, final Message message)
     {
         final String localUserId = main.getSimpleStorage().getUserId();
-        final StoredSendable storedSendable = new StoredSendable();
-        storedSendable.setTime(System.currentTimeMillis());
-        storedSendable.setConversation(conversation);
-        storedSendable.setUser(localUserId);
-        storedSendable.setRead(true);
-        storedSendable.setSent(true);
-        storedSendable.setType(sendable.getClass().getSimpleName());
-        storedSendable.setSendable(sendable.asJsonString());
-        storedSendable.setId(UUID.randomUUID().toString());
-        main.getComplexStorage().getComplexStorage().messageInsert(storedSendable);
+        final StoredMessage storedMessage = new StoredMessage();
+        storedMessage.setTime(System.currentTimeMillis());
+        storedMessage.setConversation(conversation);
+        storedMessage.setUser(localUserId);
+        storedMessage.setRead(true);
+        storedMessage.setSent(true);
+        storedMessage.setType(message.getClass().getSimpleName());
+        storedMessage.setSendable(message.asJsonString());
+        storedMessage.setId(UUID.randomUUID().toString());
+        main.getComplexStorage().getComplexStorage().messageInsert(storedMessage);
 
         if(Main.getScreenManager().getCurrentScreen() instanceof ScreenConversation)
         {
             ScreenConversation screenConversation = (ScreenConversation) Main.getScreenManager().getCurrentScreen();
-            screenConversation.addMessage(storedSendable, false);
+            screenConversation.addMessage(storedMessage, false);
         }
         new Thread(new Runnable() {
             @Override
@@ -118,25 +118,38 @@ public class Util
 
                 try
                 {
+                    final StoredConversation storedConversation = main.getComplexStorage().getConversation(conversation);
                     JSONObject object = main.getRestService().conversationInfo(conversation);
-                    JSONArray member = object.getJSONArray("member");
+                    final JSONArray member = object.getJSONArray("member");
+
+                    if(storedConversation.getMemberHash() == null || !storedConversation.getMemberHash().equals(member.toString()))
+                    {
+                        storedConversation.setMemberHash(member.toString());
+                        main.getComplexStorage().getComplexStorage().conversationInsert(storedConversation);
+                        main.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(main, "The memberlist for conversation #" + storedConversation.getId() + " has changed!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
                     for(int i = 0; i < member.length(); i++)
                     {
                         JSONObject o = (JSONObject) member.get(i);
                         String id = o.getString("id");
                         if(id.equals(localUserId)) continue;
-                        String messageId = main.getRestService().messageSend(main.getEncryptionService(), sendable, id, conversation);
-                        storedSendable.setId(messageId);
+                        String messageId = main.getRestService().messageSend(main.getEncryptionService(), message, id, conversation, main);
+                        storedMessage.setId(messageId);
                     }
                 }
                 catch(Exception e)
                 {
-                    storedSendable.setSent(false);
+                    storedMessage.setSent(false);
                     e.printStackTrace();
                 }
-                main.getComplexStorage().getComplexStorage().messageUpdate(storedSendable);
+                main.getComplexStorage().getComplexStorage().messageUpdate(storedMessage);
             }
         }).start();
     }
-
 }

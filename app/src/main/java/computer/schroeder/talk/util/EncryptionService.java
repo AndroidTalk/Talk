@@ -2,6 +2,7 @@ package computer.schroeder.talk.util;
 
 import android.content.Context;
 import android.util.Base64;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -17,7 +18,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import computer.schroeder.talk.Main;
+import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.SimpleStorage;
+import computer.schroeder.talk.storage.entities.StoredUser;
 
 public class EncryptionService
 {
@@ -56,13 +60,15 @@ public class EncryptionService
     /**
      * Encrypts a sendable json
      * To do so it requests the public key of the recipient from the backend
-     * @param restService the rest service used to request the public key
-     * @param json the actual unencrypted json sendable
-     * @param user the recipient id
-     * @return the encrypted sendable (a base64 string containing a json with the aes key and the actual encrypted message)
+     * It will display a message if the public key has changed.
+     * @param restService the rest service used to obtain the public key
+     * @param json the unencrypted json sendable
+     * @param userid the recipient id
+     * @param main the main context
+     * @return
      * @throws Exception
      */
-    public String encryptMessage(RestService restService, String json, String user) throws Exception
+    public String encryptMessage(RestService restService, String json, String userid, final Main main) throws Exception
     {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(128);
@@ -72,7 +78,23 @@ public class EncryptionService
         aesCipher.init(Cipher.ENCRYPT_MODE, key);
         byte[] encryptedMessage = aesCipher.doFinal(json.getBytes());
 
-        String publicKey = restService.getPublicKey(user);
+        final StoredUser user = main.getComplexStorage().getUser(userid, null);
+
+        String publicKey = restService.getPublicKey(user.getId());
+
+        if(user.getPublicKey() == null || !user.getPublicKey().equals(publicKey))
+        {
+            user.setPublicKey(publicKey);
+            main.getComplexStorage().getComplexStorage().userInsert(user);
+            main.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(main, "The public key for user #" + user.getId() + " has changed!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
 
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.PUBLIC_KEY, KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.decode(publicKey.getBytes(), Base64.DEFAULT))));

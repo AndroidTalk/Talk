@@ -10,7 +10,7 @@ import android.arch.persistence.room.Update;
 import java.util.List;
 
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
+import computer.schroeder.talk.storage.entities.StoredMessage;
 import computer.schroeder.talk.storage.entities.StoredUser;
 
 @Dao
@@ -28,17 +28,17 @@ public interface ComplexStorage
     @Query("SELECT * FROM storedconversation WHERE id = :id")
     StoredConversation conversationSelect(String id);
 
-    @Query("SELECT * FROM storedsendable WHERE conversation = :conversation ORDER BY time DESC LIMIT 1")
-    StoredSendable messageSelectLastMessageByConversation(String conversation);
+    @Query("SELECT * FROM storedmessage WHERE conversation = :conversation ORDER BY time DESC LIMIT 1")
+    StoredMessage messageSelectLastMessageByConversation(String conversation);
 
-    @Query("SELECT * FROM storedsendable WHERE conversation = :conversation ORDER BY time ASC")
-    List<StoredSendable> messageSelectConversation(String conversation);
+    @Query("SELECT * FROM storedmessage WHERE conversation = :conversation ORDER BY time ASC")
+    List<StoredMessage> messageSelectConversation(String conversation);
 
-    @Query("SELECT * FROM storedsendable WHERE conversation = :conversation and read = 0")
-    List<StoredSendable> messageSelectUnreadConversation(String conversation);
+    @Query("SELECT * FROM storedmessage WHERE conversation = :conversation and read = 0")
+    List<StoredMessage> messageSelectUnreadConversation(String conversation);
 
-    @Query("SELECT * FROM storedsendable WHERE read = 0 ORDER BY time DESC")
-    List<StoredSendable> messageSelectUnread();
+    @Query("SELECT * FROM storedmessage WHERE read = 0 ORDER BY time DESC")
+    List<StoredMessage> messageSelectUnread();
 
     @Query("SELECT * FROM storeduser")
     List<StoredUser> selectAllUser();
@@ -47,13 +47,13 @@ public interface ComplexStorage
     void conversationInsert(StoredConversation conversation);
 
     @Insert
-    void messageInsert(StoredSendable message);
+    void messageInsert(StoredMessage message);
 
     @Update
-    void messageUpdate(StoredSendable message);
+    void messageUpdate(StoredMessage message);
 
     @Delete
-    void messageDelete(StoredSendable... messages);
+    void messageDelete(StoredMessage... messages);
 
     @Delete
     void conversationDelete(StoredConversation... conversations);

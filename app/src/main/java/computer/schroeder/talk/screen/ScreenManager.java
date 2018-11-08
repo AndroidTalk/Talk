@@ -137,9 +137,9 @@ public class ScreenManager
                 }
                 else
                 {
-                    actionBar.setTitle(title);
                     actionBar.setDisplayShowCustomEnabled(false);
                     actionBar.setDisplayShowTitleEnabled(true);
+                    actionBar.setTitle(title);
                 }
                 actionBar.setDisplayHomeAsUpEnabled(home);
                 actionBar.setDisplayShowHomeEnabled(home);

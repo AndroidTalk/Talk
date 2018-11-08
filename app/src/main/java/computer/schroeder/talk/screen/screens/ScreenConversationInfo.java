@@ -17,26 +17,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import computer.schroeder.talk.R;
+import computer.schroeder.talk.messages.MessageEventUserAdded;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
+import computer.schroeder.talk.storage.entities.StoredMessage;
 import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.Util;
-import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
 
 public class ScreenConversationInfo extends Screen
 {
     private StoredConversation storedConversation;
-    private String conversationID;
 
     private LinearLayout member;
-
-    public ScreenConversationInfo(ScreenManager screenManager, String storedConversation)
-    {
-        super(screenManager, R.layout.screen_conversation_info);
-        this.conversationID = storedConversation;
-    }
 
     public ScreenConversationInfo(ScreenManager screenManager, StoredConversation storedConversation)
     {
@@ -47,7 +40,6 @@ public class ScreenConversationInfo extends Screen
     @Override
     public void show() throws Exception
     {
-        if(storedConversation == null && conversationID != null) storedConversation = getComplexStorage().getConversation(conversationID);
         if(storedConversation == null) throw new Exception();
         member = getContentView().findViewById(R.id.member);
         String localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
@@ -90,7 +82,7 @@ public class ScreenConversationInfo extends Screen
                                                 {
                                                     getScreenManager().getMain().getRestService().conversationAdd(storedConversation.getId(), input.getText().toString());
 
-                                                    SendableGroupOnAdd sendableTextMessage = new SendableGroupOnAdd(input.getText().toString());
+                                                    MessageEventUserAdded sendableTextMessage = new MessageEventUserAdded(input.getText().toString());
                                                     Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
                                                 }
                                                 catch(Exception e)
@@ -106,6 +98,9 @@ public class ScreenConversationInfo extends Screen
                     }
                 });
             }
+
+            TextView idview = getContentView().findViewById(R.id.idview);
+            idview.setText("Conversation: #" + storedConversation.getId());
 
             TextView textView = getContentView().findViewById(R.id.titleview);
             textView.setText(storedConversation.getTitle());
@@ -152,8 +147,7 @@ public class ScreenConversationInfo extends Screen
             mute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if(b) storedConversation.setSilent(1);
-                    else storedConversation.setSilent(0);
+                    storedConversation.setSilent(b);
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -180,7 +174,7 @@ public class ScreenConversationInfo extends Screen
                                             getScreenManager().getMain().getRestService().conversationLeave(storedConversation.getId());
                                             ComplexStorage complexStorage = getScreenManager().getMain().getComplexStorage().getComplexStorage();
                                             complexStorage.conversationDelete(storedConversation);
-                                            for(StoredSendable storedMessage : complexStorage.messageSelectConversation(storedConversation.getId())) complexStorage.messageDelete(storedMessage);
+                                            for(StoredMessage storedMessage : complexStorage.messageSelectConversation(storedConversation.getId())) complexStorage.messageDelete(storedMessage);
                                             getScreenManager().showHomeScreen(false);
                                         }
                                     }).start();
@@ -196,7 +190,7 @@ public class ScreenConversationInfo extends Screen
                 public void run()
                 {
                     getScreenManager().getMain().setContentView(getContentView());
-                    mute.setChecked(storedConversation.getSilent() > 0);
+                    mute.setChecked(storedConversation.isSilent());
                     getScreenManager().setActionBar(null, true, storedConversation.getTitle());
                 }
             });

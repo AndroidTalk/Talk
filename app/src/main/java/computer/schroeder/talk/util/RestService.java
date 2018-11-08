@@ -12,11 +12,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-import computer.schroeder.talk.storage.ComplexStorage;
+import computer.schroeder.talk.Main;
+import computer.schroeder.talk.messages.Message;
 import computer.schroeder.talk.storage.SimpleStorage;
-import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
-import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.storage.entities.StoredMessage;
 
 public class RestService
 {
@@ -131,16 +130,16 @@ public class RestService
         }
     }
 
-    public String messageSend(EncryptionService encryptionService, Sendable sendable, String user, String conversation) throws Exception
+    public String messageSend(EncryptionService encryptionService, Message message, String user, String conversation, Main main) throws Exception
     {
-        String msg = encryptionService.encryptMessage(this, sendable.asJsonString(), user);
-        JSONObject json = request("messageSend", "type=" + sendable.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
+        String msg = encryptionService.encryptMessage(this, message.asJsonString(), user, main);
+        JSONObject json = request("messageSend", "type=" + message.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
         return json.getString("id");
     }
 
-    public ArrayList<StoredSendable> messageSync(EncryptionService encryptionService, ComplexStorage complexStorage)
+    public ArrayList<StoredMessage> messageSync(EncryptionService encryptionService, ComplexStorageWrapper complexStorage)
     {
-        ArrayList<StoredSendable> storedMessages = new ArrayList<>();
+        ArrayList<StoredMessage> storedMessages = new ArrayList<>();
         try
         {
             JSONObject object = request("messageSync", null);
@@ -158,7 +157,7 @@ public class RestService
 
                 String message = encryptionService.decryptMesage(encrypted);
 
-                StoredSendable storedMessage = new StoredSendable();
+                StoredMessage storedMessage = new StoredMessage();
                 storedMessage.setUser(sender);
                 storedMessage.setSent(true);
                 storedMessage.setRead(false);
@@ -167,19 +166,8 @@ public class RestService
                 storedMessage.setType(type);
                 storedMessage.setTime(System.currentTimeMillis());
                 storedMessage.setId(id);
-                complexStorage.messageInsert(storedMessage);
+                complexStorage.getComplexStorage().messageInsert(storedMessage);
                 storedMessages.add(storedMessage);
-
-                StoredConversation c = complexStorage.conversationSelect(conversation);
-                if(c == null)
-                {
-                    c = new StoredConversation();
-                    c.setId(conversation);
-                    c.setBlocked(false);
-                    c.setSilent(0);
-                    c.setTitle("Conversation #" + conversation);
-                    complexStorage.conversationInsert(c);
-                }
 
                 System.out.println("NEU: " + type + " " + message);
             }

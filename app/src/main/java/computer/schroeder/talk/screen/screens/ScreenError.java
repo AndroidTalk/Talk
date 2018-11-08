@@ -27,7 +27,7 @@ public class ScreenError extends Screen
         getContentView().findViewById(R.id.restart).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getScreenManager().showHomeScreen(false);
+                getScreenManager().showHomeScreen(true);
             }
         });
 

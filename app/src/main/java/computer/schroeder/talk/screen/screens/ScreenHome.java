@@ -26,17 +26,17 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import computer.schroeder.talk.R;
+import computer.schroeder.talk.messages.MessageText;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.SimpleStorage;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
+import computer.schroeder.talk.storage.entities.StoredMessage;
 import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.TokenService;
 import computer.schroeder.talk.util.Util;
-import computer.schroeder.talk.util.sendable.Sendable;
-import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
-import computer.schroeder.talk.util.sendable.SendableTextMessage;
+import computer.schroeder.talk.messages.Message;
+import computer.schroeder.talk.messages.MessageEventUserAdded;
 
 public class ScreenHome extends Screen
 {
@@ -79,7 +79,7 @@ public class ScreenHome extends Screen
                                 try
                                 {
                                     String id = getScreenManager().getMain().getRestService().createConversation();
-                                    StoredConversation conversation = getComplexStorage().getConversation(id);
+                                    StoredConversation conversation = getComplexStorage().getConversation(id, "GROUP");
                                     getScreenManager().showConversationScreen(conversation);
 
                                 }
@@ -124,7 +124,7 @@ public class ScreenHome extends Screen
                                         try
                                         {
                                             String id = getScreenManager().getMain().getRestService().getDialog(input.getText().toString());
-                                            StoredConversation conversation = getComplexStorage().getConversation(id);
+                                            StoredConversation conversation = getComplexStorage().getConversation(id, "DIALOG");
                                             getScreenManager().showConversationScreen(conversation);
                                         }
                                         catch(Exception e)
@@ -151,15 +151,15 @@ public class ScreenHome extends Screen
                     simpleStorage.setUserKey((String) values[1]);
                     localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
                 }
+                getScreenManager().getMain().getRestService().updatePublicKey(simpleStorage.getPublicKey());
+                new TokenService().updateToken(getScreenManager().getMain());
+                Util.sync(getScreenManager().getMain());
             }
             catch(Exception e)
             {
                 e.printStackTrace();
                 throw new Exception("To start using Chat you need an internet connection.");
             }
-            getScreenManager().getMain().getRestService().updatePublicKey(simpleStorage.getPublicKey());
-            new TokenService().updateToken(getScreenManager().getMain());
-            Util.sync(getScreenManager().getMain());
         }
 
         ArrayList<DisplayableConversation> conversations = new ArrayList<>();
@@ -217,13 +217,11 @@ public class ScreenHome extends Screen
         long lastMessageTime = 0;
         int unread = getScreenManager().getMain().getComplexStorage().getComplexStorage().messageSelectUnreadConversation(conversation.getId()).size();
 
-        StoredSendable lastMessage = getScreenManager().getMain().getComplexStorage().getComplexStorage().messageSelectLastMessageByConversation(conversation.getId());
+        StoredMessage lastMessage = getScreenManager().getMain().getComplexStorage().getComplexStorage().messageSelectLastMessageByConversation(conversation.getId());
         if(lastMessage != null)
         {
-            Sendable sendable = lastMessage.getSendableObject();
-            lastMessageText = "No message recieved.";
-            if(sendable instanceof SendableTextMessage) lastMessageText = ((SendableTextMessage) sendable).getText();
-            else if(sendable instanceof SendableGroupOnAdd) lastMessageText = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
+            Message message = lastMessage.getSendableObject();
+            lastMessageText = message.asString();
             lastMessageTime = lastMessage.getTime();
             StoredUser user = getScreenManager().getMain().getComplexStorage().getUser(lastMessage.getUser(), localUserId);
             lastMessageSender = user.getUsername();
@@ -236,7 +234,7 @@ public class ScreenHome extends Screen
         TextView textUsername = messageView.findViewById(R.id.username);
         textUsername.setText(conversation.getTitle());
         TextView textName = messageView.findViewById(R.id.name);
-        if(conversation.getTitle().length() >= 1) textName.setText(conversation.getTitle().substring(0, 1));
+        if(conversation.getTitle().length() >= 1) textName.setText(conversation.getTitle());
         TextView textLastMessage = messageView.findViewById(R.id.lastMessage);
         textLastMessage.setText(lastMessageFull);
         TextView textViewTime = messageView.findViewById(R.id.time);
@@ -327,7 +325,7 @@ public class ScreenHome extends Screen
                                                 getScreenManager().getMain().getRestService().conversationLeave(conversation.getId());
                                                 ComplexStorage complexStorage = getScreenManager().getMain().getComplexStorage().getComplexStorage();
                                                 complexStorage.conversationDelete(conversation);
-                                                for(StoredSendable storedMessage : complexStorage.messageSelectConversation(conversation.getId())) complexStorage.messageDelete(storedMessage);
+                                                for(StoredMessage storedMessage : complexStorage.messageSelectConversation(conversation.getId())) complexStorage.messageDelete(storedMessage);
                                             }
                                             getScreenManager().getMain().runOnUiThread(new Runnable() {
                                                 @Override
@@ -367,9 +365,9 @@ public class ScreenHome extends Screen
 class DisplayableConversation
 {
     StoredConversation conversation;
-    StoredSendable storedMessage;
+    StoredMessage storedMessage;
 
-    DisplayableConversation(StoredConversation storedConversation, StoredSendable storedMessage)
+    DisplayableConversation(StoredConversation storedConversation, StoredMessage storedMessage)
     {
         this.conversation = storedConversation;
         this.storedMessage = storedMessage;

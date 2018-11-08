@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,15 +22,15 @@ import java.util.Date;
 import java.util.Locale;
 
 import computer.schroeder.talk.R;
+import computer.schroeder.talk.messages.Message;
+import computer.schroeder.talk.messages.MessageAudio;
+import computer.schroeder.talk.messages.MessageImage;
+import computer.schroeder.talk.messages.MessageText;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredConversation;
-import computer.schroeder.talk.storage.entities.StoredSendable;
-import computer.schroeder.talk.storage.entities.StoredUser;
+import computer.schroeder.talk.storage.entities.StoredMessage;
 import computer.schroeder.talk.util.NotificationService;
 import computer.schroeder.talk.util.Util;
-import computer.schroeder.talk.util.sendable.Sendable;
-import computer.schroeder.talk.util.sendable.SendableGroupOnAdd;
-import computer.schroeder.talk.util.sendable.SendableTextMessage;
 
 public class ScreenConversation extends Screen
 {
@@ -40,7 +42,7 @@ public class ScreenConversation extends Screen
     private LinearLayout messages;
     private ScrollView scrollView;
 
-    private ArrayList<StoredSendable> selected = new ArrayList<>();
+    private ArrayList<StoredMessage> selected = new ArrayList<>();
 
     public ScreenConversation(ScreenManager screenManager, StoredConversation storedConversation)
     {
@@ -64,7 +66,7 @@ public class ScreenConversation extends Screen
         scrollView = getContentView().findViewById(R.id.scroll);
 
         addInfo("Messages are End-To-End encrypted", true);
-        for(StoredSendable storedMessage : getScreenManager().getMain().getComplexStorage().getComplexStorage()
+        for(StoredMessage storedMessage : getScreenManager().getMain().getComplexStorage().getComplexStorage()
                 .messageSelectConversation(storedConversation.getId()))
         {
             storedMessage.setRead(true);
@@ -81,18 +83,54 @@ public class ScreenConversation extends Screen
             @Override
             public void onClick(View view) {
                 EditText text = getContentView().findViewById(R.id.messageText);
-                final String message = text.getText().toString();
+                final String textMessage = text.getText().toString();
                 text.setText("");
-                if(message.trim().isEmpty()) return;
+                if(textMessage.trim().isEmpty()) return;
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
 
-                        SendableTextMessage sendableTextMessage = new SendableTextMessage(message);
+                        Message message = new MessageText(textMessage);
+                        if(textMessage.equalsIgnoreCase("bild")) message = new MessageImage("Test");
+                        else if(textMessage.equalsIgnoreCase("audio")) message = new MessageAudio();
 
-                        Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), sendableTextMessage);
+                        Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), message);
                     }
                 }).start();
+            }
+        });
+
+        final EditText input = getContentView().findViewById(R.id.messageText);
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(final Editable s)
+            {
+                getScreenManager().getMain().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        ImageView icon = getContentView().findViewById(R.id.icon);
+                        ImageView attachment = getContentView().findViewById(R.id.attatchment);
+                        ImageView camera = getContentView().findViewById(R.id.camera);
+                        if(s.toString().equals(""))
+                        {
+                            icon.setImageResource(R.drawable.ic_mic);
+                            camera.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            icon.setImageResource(R.drawable.ic_send);
+                            attachment.setVisibility(View.GONE);
+                            camera.setVisibility(View.GONE);
+                        }
+                    }
+                });
             }
         });
 
@@ -139,37 +177,9 @@ public class ScreenConversation extends Screen
         getScreenManager().showHomeScreen(false);
     }
 
-    public View addMessage(final StoredSendable storedMessage, final boolean top)
+    public View addMessage(final StoredMessage storedMessage, final boolean top)
     {
-        final View messageView;
-
-        if(storedMessage.getUser().equals(localUserId))
-        {
-            messageView = getScreenManager().getInflater().inflate(R.layout.display_message_sent, messages, false);
-            ImageView status = messageView.findViewById(R.id.status);
-            if(storedMessage.isSent())
-            {
-                status.setImageDrawable(getScreenManager().getMain().getResources().getDrawable(R.drawable.ic_done_all));
-            }
-        }
-        else
-        {
-            messageView = getScreenManager().getInflater().inflate(R.layout.display_message_received, messages, false);
-            TextView textViewUsername = messageView.findViewById(R.id.username);
-            textViewUsername.setText(getScreenManager().getMain().getString(R.string.username, storedMessage.getUser()));
-            StoredUser user = getComplexStorage().getUser(storedMessage.getUser(), localUserId);
-            textViewUsername.setText(user.getUsername());
-        }
-        TextView textViewMessage = messageView.findViewById(R.id.message);
-
-        Sendable sendable = storedMessage.getSendableObject();
-        String text = "No text received.";
-        if(sendable instanceof SendableTextMessage) text = ((SendableTextMessage) sendable).getText();
-        else if(sendable instanceof SendableGroupOnAdd) text = "User #" + ((SendableGroupOnAdd) sendable).getUser() + " has been added to the group.";
-
-        textViewMessage.setText(text);
-        TextView textViewTime = messageView.findViewById(R.id.time);
-        textViewTime.setText(new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(storedMessage.getTime())));
+        final View messageView = storedMessage.getSendableObject().asView(getScreenManager(), messages, localUserId, storedMessage);
 
         messageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,7 +218,7 @@ public class ScreenConversation extends Screen
             }
         });
 
-        if(!storedMessage.isSent()) ((CardView) messageView).setCardBackgroundColor(Color.parseColor("#FFFF4444"));
+        if(!storedMessage.isSent()) ((CardView) messageView.findViewById(R.id.card)).setCardBackgroundColor(Color.parseColor("#FFFF4444"));
 
         long julianDayNumber1 = lastTime / 86400000;
         long julianDayNumber2 = storedMessage.getTime() / 86400000;
@@ -276,7 +286,7 @@ public class ScreenConversation extends Screen
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            for(StoredSendable storedMessage : selected)
+                                            for(StoredMessage storedMessage : selected)
                                             {
                                                 getScreenManager().getMain().getComplexStorage().getComplexStorage().messageDelete(storedMessage);
                                             }

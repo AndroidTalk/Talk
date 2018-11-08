@@ -11,6 +11,7 @@ public class StoredUser
     @NonNull
     private String id;
     private String username;
+    private String publicKey;
 
     public String getId() {
         return id;
@@ -20,11 +21,19 @@ public class StoredUser
         return username;
     }
 
+    public String getPublicKey() {
+        return publicKey;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }

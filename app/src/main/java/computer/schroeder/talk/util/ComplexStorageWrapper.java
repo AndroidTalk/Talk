@@ -51,12 +51,17 @@ public class ComplexStorageWrapper
         return user;
     }
 
+    public StoredConversation getConversation(String id)
+    {
+        return getConversation(id, null);
+    }
+
     /**
      * Returns a conversation, and creates one if there is non with the given id
      * @param id of the conversation
      * @return a stored conversation
      */
-    public StoredConversation getConversation(String id)
+    public StoredConversation getConversation(String id, String type)
     {
         StoredConversation conversation = complexStorage.conversationSelect(id);
         if(conversation == null)
@@ -64,8 +69,11 @@ public class ComplexStorageWrapper
             conversation = new StoredConversation();
             conversation.setId(id);
             conversation.setBlocked(false);
-            conversation.setSilent(0);
-            conversation.setTitle("Group #" + id);
+            conversation.setSilent(false);
+            conversation.setType(type);
+            if(type != null && type.equals("GROUP")) conversation.setTitle("Group #" + id);
+            if(type != null && type.equals("DIALOG")) conversation.setTitle("Dialog #" + id);
+            else conversation.setTitle("Group/Dialog #" + id);
             complexStorage.conversationInsert(conversation);
         }
         return conversation;

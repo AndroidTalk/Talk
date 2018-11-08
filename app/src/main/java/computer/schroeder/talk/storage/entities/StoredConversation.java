@@ -11,8 +11,10 @@ public class StoredConversation
     @NonNull
     private String id;
     private String title;
-    private long silent;
+    private String memberHash;
+    private boolean silent;
     private boolean blocked;
+    private String type;
 
     public String getId() {
         return id;
@@ -22,12 +24,20 @@ public class StoredConversation
         return title;
     }
 
-    public long getSilent() {
+    public String getMemberHash() {
+        return memberHash;
+    }
+
+    public boolean isSilent() {
         return silent;
     }
 
     public boolean isBlocked() {
         return blocked;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public void setId(String id) {
@@ -38,11 +48,19 @@ public class StoredConversation
         this.title = title;
     }
 
-    public void setSilent(long silent) {
+    public void setMemberHash(String memberHash) {
+        this.memberHash = memberHash;
+    }
+
+    public void setSilent(boolean silent) {
         this.silent = silent;
     }
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

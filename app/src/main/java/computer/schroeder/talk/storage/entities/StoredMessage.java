@@ -4,10 +4,10 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
-import computer.schroeder.talk.util.sendable.Sendable;
+import computer.schroeder.talk.messages.Message;
 
 @Entity
-public class StoredSendable
+public class StoredMessage
 {
     @PrimaryKey
     @NonNull
@@ -84,8 +84,8 @@ public class StoredSendable
         this.sendable = sendable;
     }
 
-    public Sendable getSendableObject()
+    public Message getSendableObject()
     {
-        return Sendable.fromJson(type, sendable);
+        return Message.fromJson(type, sendable);
     }
 }

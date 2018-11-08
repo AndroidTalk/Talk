@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="sent_top">5dp</dimen>
+    <dimen name="sent_bottom">5dp</dimen>
+    <dimen name="sent_start">60dp</dimen>
+    <dimen name="sent_end">20dp</dimen>
+    <dimen name="received_top">5dp</dimen>
+    <dimen name="received_bottom">5dp</dimen>
+    <dimen name="received_start">20dp</dimen>
+    <dimen name="received_end">60dp</dimen>
+    <dimen name="image_width">250dp</dimen>
+</resources>

@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import computer.schroeder.talk.screen.ScreenManager;
+import computer.schroeder.talk.screen.screens.Screen;
 import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenConversationInfo;
 import computer.schroeder.talk.screen.screens.ScreenHome;
@@ -89,7 +90,7 @@ public class Main extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        if(screenManager.getCurrentScreen() == null) return super.onCreateOptionsMenu(menu);
+        if(screenManager.getCurrentScreen() == null || screenManager.getCurrentScreen().getStatus() != Screen.Status.Done) return super.onCreateOptionsMenu(menu);
         return screenManager.getCurrentScreen().createOptionsMenu(menu);
     }
 

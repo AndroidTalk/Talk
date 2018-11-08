@@ -1,10 +1,18 @@
-package computer.schroeder.talk.util.sendable;
+package computer.schroeder.talk.messages;
+
+import android.view.View;
+import android.view.ViewGroup;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public abstract class Sendable
+import computer.schroeder.talk.screen.ScreenManager;
+import computer.schroeder.talk.storage.entities.StoredMessage;
+
+public abstract class Message
 {
+    public Message() {}
+
     /**
      * Converts a sendable to a json string
      * @return the sendable as a jsonString (not encrypted)
@@ -29,7 +37,9 @@ public abstract class Sendable
      *
      * @return returns the sendable as a displayable string
      */
-    abstract String asString();
+    public abstract String asString();
+
+    public abstract View asView(ScreenManager screenManager, ViewGroup parent, String localUserId, StoredMessage storedMessage);
 
     /**
      * Called by the superclass, allowing the child to fill the json with needed information
@@ -51,17 +61,17 @@ public abstract class Sendable
      * @param json the sendable json string
      * @return the sendable object
      */
-    public static Sendable fromJson(String type, String json)
+    public static Message fromJson(String type, String json)
     {
         try
         {
             JSONObject jsonObject = new JSONObject(json);
-            Class c = Class.forName("computer.schroeder.talk.util.sendable." + type);
-            Sendable sendable = (Sendable) c.newInstance();
-            if(sendable != null)
+            Class c = Class.forName("computer.schroeder.talk.messages." + type);
+            Message message = (Message) c.newInstance();
+            if(message != null)
             {
-                sendable.fromJsonChild(jsonObject);
-                return sendable;
+                message.fromJsonChild(jsonObject);
+                return message;
             }
         }
         catch(Exception e)
