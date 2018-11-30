@@ -3,6 +3,7 @@ package computer.schroeder.talk.messages;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,20 +27,16 @@ public class MessageImage extends Message
 {
     public MessageImage() {}
 
-    private String text;
+    private String image;
 
-    public MessageImage(String text)
+    public MessageImage(String image)
     {
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
+        this.image = image;
     }
 
     @Override
     public String asString() {
-        return "Image";
+        return "\uD83D\uDCF7";
     }
 
     @Override
@@ -51,11 +48,9 @@ public class MessageImage extends Message
         ImageView status = messageView.findViewById(R.id.status);
         TextView username = messageView.findViewById(R.id.username);
 
-        TextView message = messageView.findViewById(R.id.message);
-        message.setText(getText());
-
         ImageView imageView = messageView.findViewById(R.id.imageView);
-        Bitmap bitmap = BitmapFactory.decodeResource(screenManager.getMain().getResources(), R.drawable.space);
+        byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         int nh = (bitmap.getHeight() * ((int) screenManager.getMain().getResources().getDimension(R.dimen.image_width)) / bitmap.getWidth());
         imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, (int) screenManager.getMain().getResources().getDimension(R.dimen.image_width), nh, true));
 
@@ -91,12 +86,12 @@ public class MessageImage extends Message
     @Override
     void toJsonChild(JSONObject jsonObject) throws JSONException
     {
-        jsonObject.put("text", text);
+        jsonObject.put("image", image);
     }
 
     @Override
     void fromJsonChild(JSONObject jsonObject) throws JSONException
     {
-        this.text = jsonObject.getString("text");
+        this.image = jsonObject.getString("image");
     }
 }

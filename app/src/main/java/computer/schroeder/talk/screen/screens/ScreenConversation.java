@@ -3,12 +3,18 @@ package computer.schroeder.talk.screen.screens;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +24,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,6 +35,7 @@ import java.util.Locale;
 
 import computer.schroeder.talk.R;
 import computer.schroeder.talk.messages.Message;
+import computer.schroeder.talk.messages.MessageImage;
 import computer.schroeder.talk.messages.MessageText;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredConversation;
@@ -44,6 +54,8 @@ public class ScreenConversation extends Screen
     private ScrollView scrollView;
 
     private ArrayList<StoredMessage> selected = new ArrayList<>();
+
+    private File image;
 
     public ScreenConversation(ScreenManager screenManager, StoredConversation storedConversation)
     {
@@ -139,11 +151,19 @@ public class ScreenConversation extends Screen
         getContentView().findViewById(R.id.camera).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getScreenManager().getMain().getPackageManager()) != null) {
-                    getScreenManager().getMain().startActivityForResult(takePictureIntent, 4000);
+                try {
+                    image = File.createTempFile("picture_", ".png", getScreenManager().getMain().getExternalFilesDir("Pictures"));
+                    Uri i = FileProvider.getUriForFile(getScreenManager().getMain(),
+                            "computer.schroeder.talk.fileprovider",
+                            image);
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, i);
+                    if (takePictureIntent.resolveActivity(getScreenManager().getMain().getPackageManager()) != null) {
+                        getScreenManager().getMain().startActivityForResult(takePictureIntent, 4000);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
             }
         });
 
@@ -190,6 +210,35 @@ public class ScreenConversation extends Screen
     @Override
     public void back() {
         getScreenManager().showHomeScreen(false);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 4000 && resultCode == AppCompatActivity.RESULT_OK)
+        {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(), options);
+
+                    bitmap = Bitmap.createScaledBitmap(bitmap, (int) (bitmap.getWidth() * 0.1), (int) (bitmap.getHeight() * 0.1), true);
+
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 0, byteArrayOutputStream);
+                    byte[] byteArray = byteArrayOutputStream .toByteArray();
+                    String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+                    Message message = new MessageImage(encoded);
+
+                    Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), message);
+
+                    image.delete();
+                }
+            }).start();
+
+        }
     }
 
     public View addMessage(final StoredMessage storedMessage, final boolean top)

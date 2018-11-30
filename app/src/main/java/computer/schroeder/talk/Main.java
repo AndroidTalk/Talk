@@ -1,7 +1,9 @@
 package computer.schroeder.talk;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -118,6 +120,16 @@ public class Main extends AppCompatActivity
                 outState.putString("screen", "CONVERSATION_INFO");
                 outState.putString("conversation", ((ScreenConversationInfo) getScreenManager().getCurrentScreen()).getStoredConversation().getId());
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(getScreenManager().getCurrentScreen() != null)
+        {
+            getScreenManager().getCurrentScreen().onActivityResult(requestCode, resultCode, data);
         }
     }
 

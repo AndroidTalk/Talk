@@ -43,30 +43,10 @@ public class MessageEventUserAdded extends Message
     @Override
     public View asView(ScreenManager screenManager, ViewGroup parent, String localUserId, StoredMessage storedMessage)
     {
-        View messageView = screenManager.getInflater().inflate(R.layout.display_message_text, parent, false);
-
-        CardView card = messageView.findViewById(R.id.card);
-        ImageView status = messageView.findViewById(R.id.status);
-        TextView username = messageView.findViewById(R.id.username);
+        View messageView = screenManager.getInflater().inflate(R.layout.display_info, parent, false);
 
         TextView message = messageView.findViewById(R.id.message);
         message.setText("User #" + user + " has been added to the group.");
-
-        TextView time = messageView.findViewById(R.id.time);
-        time.setText(new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(storedMessage.getTime())));
-
-        if(storedMessage.getUser().equals(localUserId))
-        {
-            if(storedMessage.isSent()) status.setImageDrawable(screenManager.getMain().getResources().getDrawable(R.drawable.ic_done_all));
-            username.setVisibility(View.GONE);
-            card.setCardBackgroundColor(screenManager.getMain().getResources().getColor(R.color.colorBubble));
-        }
-        else
-        {
-            status.setVisibility(View.GONE);
-            StoredUser user = screenManager.getMain().getComplexStorage().getUser(storedMessage.getUser(), localUserId);
-            username.setText(user.getUsername());
-        }
 
         return messageView;
     }

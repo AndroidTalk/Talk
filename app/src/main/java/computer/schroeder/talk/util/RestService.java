@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -133,8 +134,20 @@ public class RestService
     public String messageSend(EncryptionService encryptionService, Message message, String user, String conversation, Main main) throws Exception
     {
         String msg = encryptionService.encryptMessage(this, message.asJsonString(), user, main);
-        JSONObject json = request("messageSend", "type=" + message.getClass().getSimpleName() + "&receiver=" + user + "&message=" + URLEncoder.encode(msg, "UTF-8") + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8"));
-        return json.getString("id");
+        String encodedMSG = URLEncoder.encode(msg, "UTF-8");
+
+        HttpURLConnection connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=messageSend&userId=" + URLEncoder.encode(simpleStorage.getUserId(), "UTF-8") + "&userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + "&type=" + message.getClass().getSimpleName() + "&receiver=" + user + "&conversation=" + URLEncoder.encode("" + conversation, "UTF-8")).openConnection();
+
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+
+        OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+        wr.write(msg);
+        wr.flush();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        return new JSONObject(br.readLine()).getString("id");
     }
 
     public ArrayList<StoredMessage> messageSync(EncryptionService encryptionService, ComplexStorageWrapper complexStorage)
