@@ -2,7 +2,9 @@ package computer.schroeder.talk.util;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 
+import computer.schroeder.talk.R;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.Database;
 import computer.schroeder.talk.storage.entities.StoredConversation;
@@ -11,6 +13,7 @@ import computer.schroeder.talk.storage.entities.StoredUser;
 public class ComplexStorageWrapper
 {
     private ComplexStorage complexStorage;
+    private Context context;
 
     /**
      * Creates a new complex storage object
@@ -18,6 +21,7 @@ public class ComplexStorageWrapper
      */
     public ComplexStorageWrapper(Context context)
     {
+        this.context = context;
         this.complexStorage = Room.databaseBuilder(context,
                         Database.class, "chat").build().getDatabase();
     }
@@ -45,6 +49,7 @@ public class ComplexStorageWrapper
             user = new StoredUser();
             user.setId(id);
             user.setUsername("#" + id);
+            user.setColor(ContextCompat.getColor(context, R.color.standard));
             complexStorage.userInsert(user);
         }
         if(id == localUserId && user.getUsername().equals("#" + id)) user.setUsername("You");
@@ -71,6 +76,7 @@ public class ComplexStorageWrapper
             conversation.setBlocked(false);
             conversation.setSilent(false);
             conversation.setType(type);
+            conversation.setColor(ContextCompat.getColor(context, R.color.standard));
             if(type != null && type.equals("GROUP")) conversation.setTitle("Group #" + id);
             if(type != null && type.equals("DIALOG")) conversation.setTitle("Dialog #" + id);
             else conversation.setTitle("Group/Dialog #" + id);

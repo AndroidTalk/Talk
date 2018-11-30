@@ -15,7 +15,7 @@
         android:clickable="true"
         android:focusable="true"
         app:backgroundTint="@color/colorAccent"
-        android:src="@drawable/ic_person_add" />
+        app:srcCompat="@drawable/ic_person_add" />
 
     <ScrollView
         android:id="@+id/scroll"
@@ -124,13 +124,13 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/titleview2"
+                        android:id="@+id/changeColor"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:drawableEnd="@android:drawable/ic_menu_edit"
+                        android:drawableEnd="@drawable/ic_create"
                         android:gravity="center_vertical"
-                        android:text="@string/conversation"
+                        android:text="Farbe ändern"
                         android:textColor="@android:color/black"
                         android:textSize="18sp" />
 

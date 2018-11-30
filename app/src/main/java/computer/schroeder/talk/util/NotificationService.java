@@ -65,6 +65,7 @@ public class NotificationService
 
         for(StoredMessage storedMessage : unread)
         {
+            if(complexStorage.getConversation(storedMessage.getConversation()).isSilent()) continue;
             if(messages.get(storedMessage.getConversation()) == null) messages.put(storedMessage.getConversation(), new ArrayList<StoredMessage>());
             messages.get(storedMessage.getConversation()).add(storedMessage);
         }
@@ -76,7 +77,7 @@ public class NotificationService
                         .setStyle(new NotificationCompat.InboxStyle().setSummaryText(unread.size() + " messages in " + messages.size() + " conversations"))
                         .setGroup("NEWMESSAGE")
                         .setGroupSummary(true)
-                        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
                         .build();
         notificationManager.notify(0, summaryNotification);
 
@@ -100,9 +101,11 @@ public class NotificationService
 
             Intent resultIntent = new Intent(context, Main.class);
             Bundle b = new Bundle();
+            b.putString("screen", "CONVERSATION");
             b.putString("conversation", storedConversation.getId()); //Your id
             resultIntent.putExtras(b); //Put your id to your next Intent
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT, b);
+            resultIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT, b);
 
             Message message = storedMessages.get(0).getSendableObject();
             String text = "No message received.";

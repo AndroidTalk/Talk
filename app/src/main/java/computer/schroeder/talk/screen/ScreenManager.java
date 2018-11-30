@@ -1,6 +1,8 @@
 package computer.schroeder.talk.screen;
 
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -112,16 +114,16 @@ public class ScreenManager
         currentScreen = null;
         main.invalidateOptionsMenu();
         main.setContentView(R.layout.screen_loading);
-        setActionBar(null, false, "Loading...");
+        setActionBar(null, false, "Loading...", ContextCompat.getColor(getMain(), R.color.standard));
         getMain().getWindow().getDecorView().setBackgroundColor(Color.WHITE);
     }
 
     public void setActionBar(Integer id, boolean home)
     {
-        setActionBar(id, home, "Talk");
+        setActionBar(id, home, "Talk", ContextCompat.getColor(getMain(), R.color.standard));
     }
 
-    public void setActionBar(final Integer id, final boolean home, final String title)
+    public void setActionBar(final Integer id, final boolean home, final String title, final int color)
     {
         getMain().runOnUiThread(new Runnable() {
             @Override
@@ -144,6 +146,7 @@ public class ScreenManager
                 actionBar.setDisplayHomeAsUpEnabled(home);
                 actionBar.setDisplayShowHomeEnabled(home);
                 actionBar.setHomeButtonEnabled(home);
+                actionBar.setBackgroundDrawable(new ColorDrawable(color));
             }
         });
     }

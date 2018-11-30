@@ -12,6 +12,7 @@ public class StoredUser
     private String id;
     private String username;
     private String publicKey;
+    private int color;
 
     public String getId() {
         return id;
@@ -25,6 +26,10 @@ public class StoredUser
         return publicKey;
     }
 
+    public int getColor() {
+        return color;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -35,5 +40,9 @@ public class StoredUser
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 }

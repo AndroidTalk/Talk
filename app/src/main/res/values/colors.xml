@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimaryLight">#054840</color>
-    <color name="colorPrimary">#075e55</color>
-    <color name="colorPrimaryDark">#054840</color>
-    <color name="colorAccent">#075e55</color>
-    <color name="colorBubble">#dcf8c6</color>
+    <color name="colorPrimaryLight">#FF054840</color>
+    <color name="colorPrimary">#FF075e55</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF075e55</color>
+    <color name="colorBubble">#FFdcf8c6</color>
+    <color name="standard">#FF075e55</color>
 </resources>

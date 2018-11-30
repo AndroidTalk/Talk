@@ -4,6 +4,11 @@ package computer.schroeder.talk.screen.screens;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
 import android.view.Menu;
@@ -194,7 +199,7 @@ public class ScreenHome extends Screen
     @Override
     public boolean createOptionsMenu(Menu menu)
     {
-        getScreenManager().getMenuInflater().inflate(R.menu.menu_home, menu);
+        //getScreenManager().getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
 
@@ -235,6 +240,10 @@ public class ScreenHome extends Screen
         textUsername.setText(conversation.getTitle());
         TextView textName = messageView.findViewById(R.id.name);
         if(conversation.getTitle().length() >= 1) textName.setText(conversation.getTitle());
+
+        textName.getBackground().setColorFilter(conversation.getColor(), PorterDuff.Mode.SRC_ATOP);
+
+
         TextView textLastMessage = messageView.findViewById(R.id.lastMessage);
         textLastMessage.setText(lastMessageFull);
         TextView textViewTime = messageView.findViewById(R.id.time);
@@ -301,10 +310,10 @@ public class ScreenHome extends Screen
 
     private void updateActionBar()
     {
-        if(selected.isEmpty()) getScreenManager().setActionBar(null, false, "Your TalkTag: #" + localUserId);
+        if(selected.isEmpty()) getScreenManager().setActionBar(null, false, "Your TalkTag: #" + localUserId, ContextCompat.getColor(getScreenManager().getMain(), R.color.standard));
         else
         {
-            getScreenManager().setActionBar(R.layout.actionbar_home_selected, false, "Your TalkTag: #" + localUserId);
+            getScreenManager().setActionBar(R.layout.actionbar_home_selected, false, "Your TalkTag: #" + localUserId, ContextCompat.getColor(getScreenManager().getMain(), R.color.standard));
             ImageView delete = getScreenManager().getActionBar().getCustomView().findViewById(R.id.delete);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -132,6 +132,7 @@ public class Main extends AppCompatActivity
         if(bundle == null) bundle = new Bundle();
 
         String screen = bundle.getString("screen", "HOME");
+        System.out.println("ccc" + bundle.getString("conversation"));
         if(screen.equals("CONVERSATION"))
         {
             String conversation = bundle.getString("conversation", null);

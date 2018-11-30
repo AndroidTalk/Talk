@@ -2,6 +2,7 @@ package computer.schroeder.talk.screen.screens;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredMessage;
 import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.Util;
+import top.defaults.colorpicker.ColorPickerPopup;
 
 public class ScreenConversationInfo extends Screen
 {
@@ -184,6 +186,41 @@ public class ScreenConversationInfo extends Screen
                 }
             });
 
+            getContentView().findViewById(R.id.changeColor).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    new ColorPickerPopup.Builder(getScreenManager().getMain())
+                            .initialColor(storedConversation.getColor()) // Set initial color
+                            .enableBrightness(true) // Enable brightness slider or not
+                            .enableAlpha(false) // Enable alpha slider or not
+                            .okTitle("Choose")
+                            .cancelTitle("Cancel")
+                            .showIndicator(true)
+                            .showValue(false)
+                            .build()
+                            .show(v, new ColorPickerPopup.ColorPickerObserver() {
+                                @Override
+                                public void onColorPicked(final int color) {
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            storedConversation.setColor(color);
+                                            getComplexStorage().getComplexStorage().conversationInsert(storedConversation);
+                                            getScreenManager().showConversationInfoScreen(storedConversation);
+                                        }
+                                    }).start();
+                                }
+
+                                @Override
+                                public void onColor(int color, boolean fromUser) {
+
+                                }
+                            });
+
+                }
+            });
+
             getScreenManager().getMain().runOnUiThread(new Runnable()
             {
                 @Override
@@ -191,20 +228,30 @@ public class ScreenConversationInfo extends Screen
                 {
                     getScreenManager().getMain().setContentView(getContentView());
                     mute.setChecked(storedConversation.isSilent());
-                    getScreenManager().setActionBar(null, true, storedConversation.getTitle());
+                    getScreenManager().setActionBar(null, true, storedConversation.getTitle(), storedConversation.getColor());
                 }
             });
         }
         catch(Exception e)
         {
             e.printStackTrace();
-            getScreenManager().showConversationScreen(storedConversation);
             getScreenManager().getMain().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(getScreenManager().getMain(), "Could not load info. Maybe you are no longer a member of the group or you have no internet connection.", Toast.LENGTH_SHORT).show();
                 }
             });
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    getScreenManager().showConversationScreen(storedConversation);
+                }
+            }).start();
         }
     }
 
@@ -234,6 +281,8 @@ public class ScreenConversationInfo extends Screen
         TextView remove = messageView.findViewById(R.id.remove);
         TextView ownerYes = messageView.findViewById(R.id.owner);
         TextView ownerNo = messageView.findViewById(R.id.nonOwner);
+
+        messageView.findViewById(R.id.name).getBackground().setColorFilter(storedUser.getColor(), PorterDuff.Mode.SRC_ATOP);
 
         remove.setVisibility(View.GONE);
         ownerYes.setVisibility(View.GONE);

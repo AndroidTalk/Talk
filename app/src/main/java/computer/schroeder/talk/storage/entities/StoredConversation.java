@@ -15,6 +15,7 @@ public class StoredConversation
     private boolean silent;
     private boolean blocked;
     private String type;
+    private int color;
 
     public String getId() {
         return id;
@@ -40,6 +41,10 @@ public class StoredConversation
         return type;
     }
 
+    public int getColor() {
+        return color;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -62,5 +67,9 @@ public class StoredConversation
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 }

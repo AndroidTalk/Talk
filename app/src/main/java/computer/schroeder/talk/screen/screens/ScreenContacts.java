@@ -1,6 +1,7 @@
 package computer.schroeder.talk.screen.screens;
 
 
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -85,10 +86,10 @@ public class ScreenContacts extends Screen
 
     private void updateActionBar()
     {
-        if(selected.isEmpty()) getScreenManager().setActionBar(null, true, "Your local contacts");
+        if(selected.isEmpty()) getScreenManager().setActionBar(null, true, "Your local contacts", ContextCompat.getColor(getScreenManager().getMain(), R.color.standard));
         else
         {
-            getScreenManager().setActionBar(R.layout.actionbar_home_selected, true, "Your local contacts");
+            getScreenManager().setActionBar(R.layout.actionbar_home_selected, true, "Your local contacts", ContextCompat.getColor(getScreenManager().getMain(), R.color.standard));
         }
     }
 }

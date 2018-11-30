@@ -10,6 +10,7 @@
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#FFFFFAE7"
         android:orientation="vertical">
 
         <LinearLayout
@@ -81,7 +82,7 @@
                             android:layout_marginBottom="3dp"
                             android:layout_marginRight="5dp"
                             android:layout_marginTop="3dp"
-                            android:tint="@android:color/darker_gray"
+                            android:tint="#868b91"
                             app:srcCompat="@drawable/ic_insert_emoticon" />
 
                         <EditText
@@ -105,7 +106,7 @@
                             android:layout_marginBottom="3dp"
                             android:layout_marginRight="5dp"
                             android:layout_marginTop="3dp"
-                            android:tint="@android:color/darker_gray"
+                            android:tint="#868b91"
                             app:srcCompat="@drawable/ic_attach_file" />
 
                         <ImageView
@@ -115,7 +116,7 @@
                             android:layout_gravity="bottom|right"
                             android:layout_marginBottom="3dp"
                             android:layout_marginTop="3dp"
-                            android:tint="@android:color/darker_gray"
+                            android:tint="#868b91"
                             app:srcCompat="@drawable/ic_camera" />
 
                     </LinearLayout>

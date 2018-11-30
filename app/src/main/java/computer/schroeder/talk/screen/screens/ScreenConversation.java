@@ -2,7 +2,10 @@ package computer.schroeder.talk.screen.screens;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.provider.MediaStore;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,8 +26,6 @@ import java.util.Locale;
 
 import computer.schroeder.talk.R;
 import computer.schroeder.talk.messages.Message;
-import computer.schroeder.talk.messages.MessageAudio;
-import computer.schroeder.talk.messages.MessageImage;
 import computer.schroeder.talk.messages.MessageText;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredConversation;
@@ -91,8 +92,8 @@ public class ScreenConversation extends Screen
                     public void run() {
 
                         Message message = new MessageText(textMessage);
-                        if(textMessage.equalsIgnoreCase("bild")) message = new MessageImage("Test");
-                        else if(textMessage.equalsIgnoreCase("audio")) message = new MessageAudio();
+                        //if(textMessage.equalsIgnoreCase("bild")) message = new MessageImage("Test");
+                        //else if(textMessage.equalsIgnoreCase("audio")) message = new MessageAudio();
 
                         Util.sendSendable(getScreenManager().getMain(), storedConversation.getId(), message);
                     }
@@ -121,7 +122,7 @@ public class ScreenConversation extends Screen
                         if(s.toString().equals(""))
                         {
                             icon.setImageResource(R.drawable.ic_mic);
-                            attachment.setVisibility(View.VISIBLE);
+                            attachment.setVisibility(View.GONE);
                             camera.setVisibility(View.VISIBLE);
                         }
                         else
@@ -135,15 +136,28 @@ public class ScreenConversation extends Screen
             }
         });
 
+        getContentView().findViewById(R.id.camera).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getScreenManager().getMain().getPackageManager()) != null) {
+                    getScreenManager().getMain().startActivityForResult(takePictureIntent, 4000);
+                }
+
+            }
+        });
+
         getScreenManager().getMain().runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
 
-                getScreenManager().getMain().getWindow().getDecorView().setBackground(getScreenManager().getMain().getResources().getDrawable(R.drawable.backgroundxml));
+                //getScreenManager().getMain().getWindow().getDecorView().setBackground(getScreenManager().getMain().getResources().getDrawable(R.drawable.backgroundxml));
                 getScreenManager().getMain().setContentView(getContentView());
                 updateActionBar();
+
+                getContentView().findViewById(R.id.attatchment).setVisibility(View.GONE);
 
                 scrollView.post(new Runnable() {
                     @Override
@@ -268,10 +282,10 @@ public class ScreenConversation extends Screen
 
     private void updateActionBar()
     {
-        if(selected.isEmpty()) getScreenManager().setActionBar(null, true, storedConversation.getTitle());
+        if(selected.isEmpty()) getScreenManager().setActionBar(null, true, storedConversation.getTitle(), storedConversation.getColor());
         else
         {
-            getScreenManager().setActionBar(R.layout.actionbar_conversation_selected, true, storedConversation.getTitle());
+            getScreenManager().setActionBar(R.layout.actionbar_conversation_selected, true, storedConversation.getTitle(), storedConversation.getColor());
             ImageView delete = getScreenManager().getActionBar().getCustomView().findViewById(R.id.delete);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
