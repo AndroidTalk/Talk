@@ -124,13 +124,13 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/changeColor"
+                        android:id="@+id/changeConversationColor"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:drawableEnd="@drawable/ic_create"
                         android:gravity="center_vertical"
-                        android:text="Farbe ändern"
+                        android:text="Change color"
                         android:textColor="@android:color/black"
                         android:textSize="18sp" />
 

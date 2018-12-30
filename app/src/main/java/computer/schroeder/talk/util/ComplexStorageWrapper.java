@@ -48,7 +48,7 @@ public class ComplexStorageWrapper
         {
             user = new StoredUser();
             user.setId(id);
-            user.setUsername("#" + id);
+            user.setUsername("User #" + id);
             user.setColor(ContextCompat.getColor(context, R.color.standard));
             complexStorage.userInsert(user);
         }

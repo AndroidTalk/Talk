@@ -11,32 +11,59 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredMessage;
 import computer.schroeder.talk.storage.entities.StoredUser;
+import computer.schroeder.talk.util.AudioPlayer;
 
 public class MessageAudio extends Message
 {
     public MessageAudio() {}
 
+    public MessageAudio(String audio)
+    {
+        this.audio = audio;
+    }
+
+    private String audio;
+
     @Override
     public String asString() {
-        return "Audio";
+        return "\uD83D\uDD0A";
     }
 
     @Override
-    public View asView(ScreenManager screenManager, ViewGroup parent, String localUserId, StoredMessage storedMessage)
+    public View asView(final ScreenManager screenManager, ViewGroup parent, String localUserId, final StoredMessage storedMessage)
     {
         View messageView = screenManager.getInflater().inflate(R.layout.display_message_audio, parent, false);
 
         CardView card = messageView.findViewById(R.id.card);
         ImageView status = messageView.findViewById(R.id.status);
         TextView username = messageView.findViewById(R.id.username);
+        ImageView play = messageView.findViewById(R.id.play);
+        TextView duration = messageView.findViewById(R.id.duration);
+        Date date = new Date(AudioPlayer.getDuration(screenManager, audio));
+        SimpleDateFormat df = new SimpleDateFormat("mm:ss");
+        duration.setText(df.format(date));
+
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    screenManager.getMain().getAudioPlayer().startPlaying(screenManager, audio);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         TextView time = messageView.findViewById(R.id.time);
         time.setText(new SimpleDateFormat("HH:mm", Locale.ENGLISH).format(new Date(storedMessage.getTime())));
@@ -70,10 +97,12 @@ public class MessageAudio extends Message
     @Override
     void toJsonChild(JSONObject jsonObject) throws JSONException
     {
+        jsonObject.put("audio", audio);
     }
 
     @Override
     void fromJsonChild(JSONObject jsonObject) throws JSONException
     {
+        this.audio = jsonObject.getString("audio");
     }
 }

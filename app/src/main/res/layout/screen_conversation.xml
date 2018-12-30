@@ -66,13 +66,15 @@
                         app:srcCompat="@drawable/person" />-->
 
                     <LinearLayout
+                        android:id="@+id/text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
                         android:layout_marginTop="5dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:visibility="visible">
 
                         <ImageView
                             android:id="@+id/emoji"
@@ -82,7 +84,7 @@
                             android:layout_marginBottom="3dp"
                             android:layout_marginRight="5dp"
                             android:layout_marginTop="3dp"
-                            android:tint="#868b91"
+                            android:tint="@color/icons"
                             app:srcCompat="@drawable/ic_insert_emoticon" />
 
                         <EditText
@@ -106,7 +108,7 @@
                             android:layout_marginBottom="3dp"
                             android:layout_marginRight="5dp"
                             android:layout_marginTop="3dp"
-                            android:tint="#868b91"
+                            android:tint="@color/icons"
                             app:srcCompat="@drawable/ic_attach_file" />
 
                         <ImageView
@@ -116,8 +118,52 @@
                             android:layout_gravity="bottom|right"
                             android:layout_marginBottom="3dp"
                             android:layout_marginTop="3dp"
-                            android:tint="#868b91"
+                            android:tint="@color/icons"
                             app:srcCompat="@drawable/ic_camera" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/audio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/recording"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="bottom"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginRight="5dp"
+                            android:layout_marginTop="3dp"
+                            android:tint="#ff1622"
+                            app:srcCompat="@drawable/ic_mic" />
+
+                        <TextView
+                            android:id="@+id/audioLength"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="5dp"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical|center_horizontal"
+                            android:text="0:00"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/cancel"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="bottom|right"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginTop="3dp"
+                            android:tint="@color/icons"
+                            app:srcCompat="@drawable/ic_close" />
 
                     </LinearLayout>
 

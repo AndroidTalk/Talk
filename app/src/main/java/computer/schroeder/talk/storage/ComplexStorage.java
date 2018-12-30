@@ -40,7 +40,7 @@ public interface ComplexStorage
     @Query("SELECT * FROM storedmessage WHERE read = 0 ORDER BY time DESC")
     List<StoredMessage> messageSelectUnread();
 
-    @Query("SELECT * FROM storeduser")
+    @Query("SELECT * FROM storeduser ORDER BY id DESC")
     List<StoredUser> selectAllUser();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -57,4 +57,7 @@ public interface ComplexStorage
 
     @Delete
     void conversationDelete(StoredConversation... conversations);
+
+    @Delete
+    void delete(StoredUser... storedUsers);
 }

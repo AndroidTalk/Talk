@@ -30,6 +30,7 @@ import top.defaults.colorpicker.ColorPickerPopup;
 public class ScreenConversationInfo extends Screen
 {
     private StoredConversation storedConversation;
+    private String conversationID = null;
 
     private LinearLayout member;
 
@@ -39,10 +40,17 @@ public class ScreenConversationInfo extends Screen
         this.storedConversation = storedConversation;
     }
 
+    public ScreenConversationInfo(ScreenManager screenManager, String storedConversation) {
+        super(screenManager, R.layout.screen_conversation_info);
+        conversationID = storedConversation;
+    }
+
     @Override
     public void show() throws Exception
     {
-        if(storedConversation == null) throw new Exception();
+        if (storedConversation == null && conversationID != null)
+            storedConversation = getComplexStorage().getConversation(conversationID);
+        if (storedConversation == null) throw new Exception();
         member = getContentView().findViewById(R.id.member);
         String localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
         try
@@ -186,7 +194,7 @@ public class ScreenConversationInfo extends Screen
                 }
             });
 
-            getContentView().findViewById(R.id.changeColor).setOnClickListener(new View.OnClickListener() {
+            getContentView().findViewById(R.id.changeConversationColor).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
@@ -280,9 +288,9 @@ public class ScreenConversationInfo extends Screen
         textUsername.setText(storedUser.getUsername());
         TextView remove = messageView.findViewById(R.id.remove);
         TextView ownerYes = messageView.findViewById(R.id.owner);
-        TextView ownerNo = messageView.findViewById(R.id.nonOwner);
+        TextView ownerNo = messageView.findViewById(R.id.owner);
 
-        messageView.findViewById(R.id.name).getBackground().setColorFilter(storedUser.getColor(), PorterDuff.Mode.SRC_ATOP);
+        messageView.findViewById(R.id.logo).getBackground().setColorFilter(storedUser.getColor(), PorterDuff.Mode.SRC_ATOP);
 
         remove.setVisibility(View.GONE);
         ownerYes.setVisibility(View.GONE);

@@ -1,10 +1,15 @@
 package computer.schroeder.talk.screen.screens;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +20,8 @@ import computer.schroeder.talk.R;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.entities.StoredConversation;
 import computer.schroeder.talk.storage.entities.StoredUser;
+import computer.schroeder.talk.util.InflaterHelper;
+import top.defaults.colorpicker.ColorPickerPopup;
 
 public class ScreenContacts extends Screen
 {
@@ -36,7 +43,9 @@ public class ScreenContacts extends Screen
         localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
         contacts = getContentView().findViewById(R.id.contacts);
 
-        for(StoredUser user : getComplexStorage().getComplexStorage().selectAllUser()) addContact(user);
+        InflaterHelper inflaterHelper = new InflaterHelper(getScreenManager());
+
+        for(StoredUser user : getComplexStorage().getComplexStorage().selectAllUser()) contacts.addView(inflaterHelper.getUserDisplay(contacts, user, null));
 
 
         getScreenManager().getMain().runOnUiThread(new Runnable()
@@ -64,24 +73,6 @@ public class ScreenContacts extends Screen
     @Override
     public void back() {
         getScreenManager().showHomeScreen(false);
-    }
-
-
-    private void addContact(final StoredUser storedUser)
-    {
-        final LinearLayout messageView;
-        messageView = (LinearLayout) getScreenManager().getInflater().inflate(R.layout.display_user, contacts, false);
-        TextView textUsername = messageView.findViewById(R.id.username);
-        textUsername.setText(storedUser.getUsername());
-        TextView remove = messageView.findViewById(R.id.remove);
-        TextView ownerYes = messageView.findViewById(R.id.owner);
-        TextView ownerNo = messageView.findViewById(R.id.nonOwner);
-
-        remove.setVisibility(View.GONE);
-        ownerYes.setVisibility(View.GONE);
-        ownerNo.setVisibility(View.GONE);
-
-        contacts.addView(messageView);
     }
 
     private void updateActionBar()

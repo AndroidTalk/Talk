@@ -1,8 +1,11 @@
 package computer.schroeder.talk.storage.entities;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+
+import java.lang.annotation.Target;
 
 import computer.schroeder.talk.messages.Message;
 
@@ -18,6 +21,7 @@ public class StoredMessage
     private boolean read;
     private boolean sent;
     private String type;
+    @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     private String sendable;
 
     public String getId() {

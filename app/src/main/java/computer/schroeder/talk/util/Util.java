@@ -64,8 +64,7 @@ public class Util
                         {
                             storedMessage.setRead(true);
                             complexStorage.getComplexStorage().messageUpdate(storedMessage);
-                            View view = screenConversation.addMessage(storedMessage, false);
-                            screenConversation.scrollToView(view);
+                            screenConversation.loadMessages(0, true);
                         }
                     }
                 }
@@ -110,7 +109,7 @@ public class Util
         if(Main.getScreenManager().getCurrentScreen() instanceof ScreenConversation)
         {
             ScreenConversation screenConversation = (ScreenConversation) Main.getScreenManager().getCurrentScreen();
-            screenConversation.addMessage(storedMessage, false);
+            if(screenConversation.getStoredConversation().getId().equals(conversation)) screenConversation.loadMessages(0, true);
         }
         new Thread(new Runnable() {
             @Override

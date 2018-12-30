@@ -5,10 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
 import android.view.Menu;
@@ -31,7 +28,6 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import computer.schroeder.talk.R;
-import computer.schroeder.talk.messages.MessageText;
 import computer.schroeder.talk.screen.ScreenManager;
 import computer.schroeder.talk.storage.ComplexStorage;
 import computer.schroeder.talk.storage.SimpleStorage;
@@ -41,7 +37,6 @@ import computer.schroeder.talk.storage.entities.StoredUser;
 import computer.schroeder.talk.util.TokenService;
 import computer.schroeder.talk.util.Util;
 import computer.schroeder.talk.messages.Message;
-import computer.schroeder.talk.messages.MessageEventUserAdded;
 
 public class ScreenHome extends Screen
 {
@@ -146,7 +141,7 @@ public class ScreenHome extends Screen
 
         if(sync)
         {
-            SimpleStorage simpleStorage = getScreenManager().getMain().getSimpleStorage();
+            final SimpleStorage simpleStorage = getScreenManager().getMain().getSimpleStorage();
             try
             {
                 if(localUserId == null || simpleStorage.getUserKey() == null)
@@ -156,9 +151,21 @@ public class ScreenHome extends Screen
                     simpleStorage.setUserKey((String) values[1]);
                     localUserId = getScreenManager().getMain().getSimpleStorage().getUserId();
                 }
-                getScreenManager().getMain().getRestService().updatePublicKey(simpleStorage.getPublicKey());
-                new TokenService().updateToken(getScreenManager().getMain());
-                Util.sync(getScreenManager().getMain());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try
+                        {
+                            getScreenManager().getMain().getRestService().updatePublicKey(simpleStorage.getPublicKey());
+                            new TokenService().updateToken(getScreenManager().getMain());
+                            Util.sync(getScreenManager().getMain());
+                        }
+                        catch(Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             }
             catch(Exception e)
             {
@@ -199,7 +206,7 @@ public class ScreenHome extends Screen
     @Override
     public boolean createOptionsMenu(Menu menu)
     {
-        //getScreenManager().getMenuInflater().inflate(R.menu.menu_home, menu);
+        getScreenManager().getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
 

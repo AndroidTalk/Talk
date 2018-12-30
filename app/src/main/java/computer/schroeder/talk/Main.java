@@ -1,7 +1,6 @@
 package computer.schroeder.talk;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +13,8 @@ import computer.schroeder.talk.screen.screens.ScreenConversation;
 import computer.schroeder.talk.screen.screens.ScreenConversationInfo;
 import computer.schroeder.talk.screen.screens.ScreenHome;
 import computer.schroeder.talk.storage.SimpleStorage;
+import computer.schroeder.talk.util.AudioPlayer;
+import computer.schroeder.talk.util.AudioRecorder;
 import computer.schroeder.talk.util.ComplexStorageWrapper;
 import computer.schroeder.talk.util.EncryptionService;
 import computer.schroeder.talk.util.RestService;
@@ -26,6 +27,8 @@ public class Main extends AppCompatActivity
     private ComplexStorageWrapper complexStorage;
     private EncryptionService encryptionService;
     private RestService restService;
+    private AudioRecorder audioRecorder;
+    private AudioPlayer audioPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -43,6 +46,8 @@ public class Main extends AppCompatActivity
         screenManager = new ScreenManager(this);
         simpleStorage = new SimpleStorage(this);
         complexStorage = new ComplexStorageWrapper(this);
+        audioRecorder = new AudioRecorder();
+        audioPlayer = new AudioPlayer();
         try
         {
             encryptionService = new EncryptionService(this);
@@ -73,6 +78,15 @@ public class Main extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         open = false;
+        getAudioRecorder().stopRecording();
+        audioPlayer.stopPlaying();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getAudioRecorder().stopRecording();
+        audioPlayer.stopPlaying();
     }
 
     @Override
@@ -144,7 +158,6 @@ public class Main extends AppCompatActivity
         if(bundle == null) bundle = new Bundle();
 
         String screen = bundle.getString("screen", "HOME");
-        System.out.println("ccc" + bundle.getString("conversation"));
         if(screen.equals("CONVERSATION"))
         {
             String conversation = bundle.getString("conversation", null);
@@ -159,7 +172,7 @@ public class Main extends AppCompatActivity
             String conversation = bundle.getString("conversation", null);
             if (conversation != null)
             {
-                getScreenManager().showConversationScreen(conversation);
+                getScreenManager().showConversationInfoScreen(conversation);
                 return;
             }
         }
@@ -212,5 +225,13 @@ public class Main extends AppCompatActivity
      */
     public static ScreenManager getScreenManager() {
         return screenManager;
+    }
+
+    public AudioRecorder getAudioRecorder() {
+        return audioRecorder;
+    }
+
+    public AudioPlayer getAudioPlayer() {
+        return audioPlayer;
     }
 }

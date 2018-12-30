@@ -99,6 +99,11 @@ public class ScreenManager
         showScreen(new ScreenConversationInfo(ScreenManager.this, conversation));
     }
 
+    public void showConversationInfoScreen(String conversation)
+    {
+        showScreen(new ScreenConversationInfo(ScreenManager.this, conversation));
+    }
+
     public void showContactsScreen()
     {
         showScreen(new ScreenContacts(ScreenManager.this));
