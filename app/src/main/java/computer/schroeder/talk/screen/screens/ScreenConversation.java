@@ -331,12 +331,7 @@ public class ScreenConversation extends Screen {
                     for (final StoredMessage storedMessage : list.subList(list.size() - diff, list.size())) {
                         storedMessage.setRead(true);
                         getScreenManager().getMain().getComplexStorage().getComplexStorage().messageUpdate(storedMessage);
-                        getScreenManager().getMain().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                addMessage(storedMessage);
-                            }
-                        });
+                        addMessage(storedMessage);
                     }
                 }
 

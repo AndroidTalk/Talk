@@ -195,8 +195,14 @@ public class RestService
     private JSONObject request(String type, String request) throws Exception
     {
         HttpURLConnection connection;
-        if(simpleStorage.getUserId() != null && simpleStorage.getUserKey() != null) connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type + "&userId=" + URLEncoder.encode(simpleStorage.getUserId(), "UTF-8") + "&userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") + (request != null ?  "&" + request : "")).openConnection();
-        else connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" + type  + (request != null ?  "&" + request : "")).openConnection();
+        if(simpleStorage.getUserId() != null && simpleStorage.getUserKey() != null)
+            connection = (HttpURLConnection)
+                new URL("https://talk.schroeder.computer/api.php?api=" + type +
+                        "&userId=" + URLEncoder.encode(simpleStorage.getUserId(), "UTF-8")
+                        + "&userKey=" + URLEncoder.encode(simpleStorage.getUserKey(), "UTF-8") +
+                        (request != null ?  "&" + request : "")).openConnection();
+        else connection = (HttpURLConnection) new URL("https://talk.schroeder.computer/api.php?api=" +
+                type  + (request != null ?  "&" + request : "")).openConnection();
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         return new JSONObject(br.readLine());
     }
